@@ -9,6 +9,7 @@ services:
     runtime: python
     plan: starter
     buildCommand: "./build.sh"
+    preDeployCommand: "python manage.py migrate_schemas --shared && python manage.py migrate_schemas"
     startCommand: "gunicorn odontogest.wsgi:application"
     envVars:
       - key: SECRET_KEY
