@@ -1,7 +1,7 @@
 databases:
   - name: odontogest-db
     databaseName: odontogest
-    plan: starter
+    plan: basic-256mb
 
 services:
   - type: web
