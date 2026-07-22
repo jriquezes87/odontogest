@@ -1,0 +1,40 @@
+{% extends "core/_layout_admin.html" %}
+{% block titulo %}Pagos{% endblock %}
+
+{% block contenido_admin %}
+<h2>Pagos recibidos</h2>
+
+<div class="card">
+    <table>
+        <thead><tr><th>Consultorio</th><th>Monto</th><th>Metodo</th><th>Referencia</th><th>Comprobante</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+        {% for pago in pagos %}
+            <tr>
+                <td>{{ pago.suscripcion.consultorio.nombre_practica }}</td>
+                <td>${{ pago.monto }} {{ pago.moneda }}</td>
+                <td>{{ pago.get_metodo_display }}</td>
+                <td>{{ pago.referencia|default:"-" }}</td>
+                <td>
+                    {% if pago.comprobante %}
+                        <a href="{{ pago.comprobante.url }}" target="_blank">Ver</a>
+                    {% else %}-{% endif %}
+                </td>
+                <td>
+                    {% if pago.estado == 'aprobado' %}<span class="badge badge-verde">Aprobado</span>
+                    {% elif pago.estado == 'rechazado' %}<span class="badge badge-rojo">Rechazado</span>
+                    {% else %}<span class="badge badge-amarillo">Pendiente</span>{% endif %}
+                </td>
+                <td>
+                    {% if pago.estado == 'pendiente' %}
+                        <a href="{% url 'core:aprobar_pago' pago.id %}" class="btn btn-primario">Aprobar</a>
+                        <a href="{% url 'core:rechazar_pago' pago.id %}" class="btn btn-secundario">Rechazar</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7">Aun no hay pagos registrados.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

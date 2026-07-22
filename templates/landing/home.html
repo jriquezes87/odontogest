@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}{{ MARCA_APP_NOMBRE }} - Gestion para odontologos y consultorios{% endblock %}
+
+{% block contenido %}
+<section class="landing-hero">
+    <h1>Gestiona tu consultorio dental sin complicaciones</h1>
+    <p>Pacientes, citas, cotizaciones, odontograma y pagos, todo en un solo lugar.<br>Hecho para odontologos y consultorios en Venezuela.</p>
+    <a href="{% url 'landing:registro' %}" class="btn btn-primario">Comenzar prueba gratis</a>
+    <a href="{% url 'landing:precios' %}" class="btn btn-outline" style="margin-left:10px;">Ver precios</a>
+</section>
+
+<div class="contenedor">
+    <div class="grid-kpis">
+        <div class="card">
+            <h3>Pacientes e historias</h3>
+            <p style="color:var(--color-gris-texto);">Cada paciente identificado por su cedula, con historia, fotos y odontograma centralizados.</p>
+        </div>
+        <div class="card">
+            <h3>Calendario por doctor</h3>
+            <p style="color:var(--color-gris-texto);">Agenda individual para cada odontologo, con recordatorios automaticos por WhatsApp.</p>
+        </div>
+        <div class="card">
+            <h3>Cotizaciones y pagos</h3>
+            <p style="color:var(--color-gris-texto);">Genera cotizaciones en PDF, aprueba tratamientos y lleva el control de tus cobros.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

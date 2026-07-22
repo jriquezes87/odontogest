@@ -1,0 +1,32 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}{% if procedimiento %}Editar{% else %}Nuevo{% endif %} procedimiento{% endblock %}
+
+{% block contenido_app %}
+<h2>{% if procedimiento %}Editar procedimiento{% else %}Nuevo procedimiento{% endif %}</h2>
+
+<form method="post" class="card" style="max-width:500px;">
+    {% csrf_token %}
+    <div class="form-grupo">
+        <label>Nombre</label>
+        <input type="text" name="nombre" value="{{ procedimiento.nombre|default:'' }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Descripcion</label>
+        <textarea name="descripcion" rows="3">{{ procedimiento.descripcion|default:'' }}</textarea>
+    </div>
+    <div class="form-grupo">
+        <label>Precio (USD)</label>
+        <input type="number" step="0.01" name="precio" value="{{ procedimiento.precio|default:'' }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Duracion estimada (minutos)</label>
+        <input type="number" name="duracion_minutos" value="{{ procedimiento.duracion_minutos|default:'30' }}">
+    </div>
+    {% if procedimiento %}
+    <div class="form-grupo">
+        <label><input type="checkbox" name="activo" {% if procedimiento.activo %}checked{% endif %} style="width:auto;"> Activo</label>
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primario">Guardar</button>
+</form>
+{% endblock %}

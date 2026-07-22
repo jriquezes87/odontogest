@@ -1,0 +1,42 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Registrar pago{% endblock %}
+
+{% block contenido_app %}
+<h2>Registrar pago - {{ paciente.nombre_completo }}</h2>
+
+<form method="post" class="card" style="max-width:500px;">
+    {% csrf_token %}
+    {% if cotizaciones %}
+    <div class="form-grupo">
+        <label>Cotizacion relacionada (opcional)</label>
+        <select name="cotizacion_id">
+            <option value="">-- Ninguna --</option>
+            {% for c in cotizaciones %}
+                <option value="{{ c.id }}">{{ c.numero }} (${{ c.total }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+    <div class="form-grupo">
+        <label>Monto</label>
+        <input type="number" step="0.01" name="monto" required>
+    </div>
+    <div class="form-grupo">
+        <label>Cuenta que recibe</label>
+        <select name="cuenta_id">
+            {% for cuenta in cuentas %}
+                <option value="{{ cuenta.id }}">{{ cuenta.nombre }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-grupo">
+        <label>Metodo</label>
+        <input type="text" name="metodo" placeholder="Pago movil, Zelle, efectivo...">
+    </div>
+    <div class="form-grupo">
+        <label>Referencia</label>
+        <input type="text" name="referencia">
+    </div>
+    <button type="submit" class="btn btn-primario">Registrar pago</button>
+</form>
+{% endblock %}

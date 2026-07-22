@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block titulo %}Precios - {{ MARCA_APP_NOMBRE }}{% endblock %}
+
+{% block contenido %}
+<div class="contenedor">
+    <h1 style="text-align:center;">Planes y precios</h1>
+    <p style="text-align:center; color:var(--color-gris-texto);">Elige el plan segun el tamano de tu consultorio.</p>
+
+    <div class="grid-kpis" style="margin-top:32px;">
+        {% for plan in planes %}
+        <div class="card" style="text-align:center;">
+            <h3>{{ plan.nombre }}</h3>
+            <p style="font-size:1.8rem; color:var(--color-azul-acento); font-weight:700;">${{ plan.precio_mensual }}<span style="font-size:0.9rem; color:var(--color-gris-texto);">/mes</span></p>
+            <ul style="text-align:left; color:var(--color-gris-texto); font-size:0.9rem;">
+                <li>Hasta {{ plan.limite_pacientes }} pacientes</li>
+                <li>Hasta {{ plan.limite_doctores }} doctor(es)</li>
+                <li>{{ plan.limite_storage_gb }} GB de almacenamiento</li>
+            </ul>
+            <a href="{% url 'landing:registro' %}" class="btn btn-primario">Elegir plan</a>
+        </div>
+        {% empty %}
+            <p>Los planes se estan configurando, vuelve pronto.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

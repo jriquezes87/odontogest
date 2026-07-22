@@ -1,0 +1,35 @@
+{% extends "core/_layout_admin.html" %}
+{% block titulo %}Panel administrativo{% endblock %}
+
+{% block contenido_admin %}
+<h2>Panel administrativo - {{ MARCA_APP_NOMBRE }}</h2>
+
+<div class="grid-kpis">
+    <div class="card-kpi">
+        <div class="valor">{{ total_consultorios }}</div>
+        <div class="etiqueta">Consultorios registrados</div>
+    </div>
+    <div class="card-kpi">
+        <div class="valor">{{ suscripciones_activas }}</div>
+        <div class="etiqueta">Suscripciones activas</div>
+    </div>
+    <div class="card-kpi">
+        <div class="valor">{{ suscripciones_trial }}</div>
+        <div class="etiqueta">En periodo de prueba</div>
+    </div>
+    <div class="card-kpi">
+        <div class="valor">{{ pagos_pendientes }}</div>
+        <div class="etiqueta">Pagos por aprobar</div>
+    </div>
+    <div class="card-kpi">
+        <div class="valor">${{ ingresos_mes }}</div>
+        <div class="etiqueta">Ingresos este mes</div>
+    </div>
+</div>
+
+{% if pagos_pendientes > 0 %}
+<div class="card">
+    <p>Tienes <strong>{{ pagos_pendientes }}</strong> pago(s) pendiente(s) de revision. <a href="{% url 'core:pagos' %}">Revisar ahora →</a></p>
+</div>
+{% endif %}
+{% endblock %}

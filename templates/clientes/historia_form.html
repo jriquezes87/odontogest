@@ -1,0 +1,27 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Nueva historia clinica{% endblock %}
+
+{% block contenido_app %}
+<h2>Nueva historia clinica - {{ paciente.nombre_completo }}</h2>
+
+<form method="post" class="card" style="max-width:600px;">
+    {% csrf_token %}
+    <div class="form-grupo">
+        <label>Motivo de consulta</label>
+        <textarea name="motivo_consulta" rows="2" required></textarea>
+    </div>
+    <div class="form-grupo">
+        <label>Diagnostico</label>
+        <textarea name="diagnostico" rows="3"></textarea>
+    </div>
+    <div class="form-grupo">
+        <label>Tratamiento realizado</label>
+        <textarea name="tratamiento_realizado" rows="3"></textarea>
+    </div>
+    <div class="form-grupo">
+        <label>Observaciones</label>
+        <textarea name="observaciones" rows="2"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primario">Guardar historia</button>
+</form>
+{% endblock %}

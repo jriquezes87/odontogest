@@ -1,0 +1,30 @@
+{% extends "core/_layout_admin.html" %}
+{% block titulo %}Suscripciones{% endblock %}
+
+{% block contenido_admin %}
+<h2>Suscripciones</h2>
+
+<div class="card">
+    <table>
+        <thead><tr><th>Consultorio</th><th>Plan</th><th>Estado</th><th>Vencimiento</th><th>Auto-renovar</th></tr></thead>
+        <tbody>
+        {% for s in suscripciones %}
+            <tr>
+                <td>{{ s.consultorio.nombre_practica }}</td>
+                <td>{{ s.plan.nombre }}</td>
+                <td>
+                    {% if s.estado == 'activa' %}<span class="badge badge-verde">{{ s.get_estado_display }}</span>
+                    {% elif s.estado == 'vencida' or s.estado == 'cancelada' %}<span class="badge badge-rojo">{{ s.get_estado_display }}</span>
+                    {% elif s.estado == 'pausada' %}<span class="badge badge-amarillo">{{ s.get_estado_display }}</span>
+                    {% else %}<span class="badge badge-azul">{{ s.get_estado_display }}</span>{% endif %}
+                </td>
+                <td>{{ s.fecha_vencimiento|date:"d/m/Y" }}</td>
+                <td>{{ s.auto_renovar|yesno:"Si,No" }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">Aun no hay suscripciones.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

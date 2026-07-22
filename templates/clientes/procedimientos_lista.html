@@ -1,0 +1,31 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Procedimientos{% endblock %}
+
+{% block contenido_app %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Catalogo de procedimientos</h2>
+    <a href="{% url 'clientes:crear_procedimiento' %}" class="btn btn-primario">+ Nuevo procedimiento</a>
+</div>
+
+<div class="card">
+    <table>
+        <thead><tr><th>Nombre</th><th>Precio</th><th>Duracion</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+        {% for p in procedimientos %}
+            <tr>
+                <td>{{ p.nombre }}</td>
+                <td>${{ p.precio }}</td>
+                <td>{{ p.duracion_minutos }} min</td>
+                <td>
+                    {% if p.activo %}<span class="badge badge-verde">Activo</span>
+                    {% else %}<span class="badge badge-gris">Inactivo</span>{% endif %}
+                </td>
+                <td><a href="{% url 'clientes:editar_procedimiento' p.id %}" class="btn btn-outline">Editar</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">Aun no has agregado procedimientos.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

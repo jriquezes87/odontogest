@@ -1,0 +1,41 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}{{ cotizacion.numero }}{% endblock %}
+
+{% block contenido_app %}
+<div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2>{{ cotizacion.numero }}</h2>
+    <div>
+        <a href="{% url 'clientes:cotizacion_pdf' cotizacion.id %}" class="btn btn-outline" target="_blank">Ver PDF</a>
+        {% if cotizacion.estado == 'enviada' %}
+            <a href="{% url 'clientes:aprobar_cotizacion' cotizacion.id %}" class="btn btn-primario">Aprobar cotizacion</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <p><strong>Paciente:</strong> {{ cotizacion.paciente.nombre_completo }}</p>
+    <p><strong>Doctor:</strong> {{ cotizacion.doctor.get_full_name }}</p>
+    <p><strong>Fecha:</strong> {{ cotizacion.fecha_creacion|date:"d/m/Y" }}</p>
+    <p><strong>Estado:</strong> <span class="badge badge-azul">{{ cotizacion.get_estado_display }}</span></p>
+
+    <table style="margin-top:16px;">
+        <thead><tr><th>Procedimiento</th><th>Diente</th><th>Cant.</th><th>Precio unit.</th><th>Subtotal</th></tr></thead>
+        <tbody>
+        {% for item in cotizacion.items.all %}
+            <tr>
+                <td>{{ item.procedimiento.nombre }}</td>
+                <td>{{ item.diente_numero|default:"-" }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>${{ item.precio_unitario }}</td>
+                <td>${{ item.subtotal }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <h3 style="text-align:right;">Total: ${{ cotizacion.total }}</h3>
+
+    {% if cotizacion.notas %}
+        <p><strong>Notas:</strong> {{ cotizacion.notas }}</p>
+    {% endif %}
+</div>
+{% endblock %}

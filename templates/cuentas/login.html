@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}Iniciar sesion - {{ MARCA_APP_NOMBRE }}{% endblock %}
+
+{% block contenido %}
+<div class="contenedor" style="max-width:400px;">
+    <h1>Iniciar sesion</h1>
+
+    <form method="post" class="card">
+        {% csrf_token %}
+        <div class="form-grupo">
+            <label>Correo electronico</label>
+            <input type="text" name="username" required autofocus>
+        </div>
+        <div class="form-grupo">
+            <label>Clave</label>
+            <input type="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primario" style="width:100%;">Entrar</button>
+    </form>
+
+    <p style="text-align:center; color:var(--color-gris-texto); margin-top:16px;">
+        ¿No tienes cuenta? <a href="{% url 'landing:registro' %}">Registra tu consultorio</a>
+    </p>
+</div>
+{% endblock %}

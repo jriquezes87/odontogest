@@ -1,0 +1,106 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Odontograma - {{ paciente.nombre_completo }}{% endblock %}
+
+{% block contenido_app %}
+<h2>Odontograma - {{ paciente.nombre_completo }}</h2>
+
+<div class="card">
+    <p style="color:var(--color-gris-texto); font-size:0.9rem;">
+        Haz clic en un diente para registrar un hallazgo o tratamiento. Notacion FDI.
+    </p>
+
+    <div class="odontograma-arcada">
+        {% for numero in dientes_arriba %}
+            <div class="diente"
+                 data-diente="{{ numero }}"
+                 onclick="abrirModal('{{ numero }}')">
+                {{ numero }}
+            </div>
+        {% endfor %}
+    </div>
+    <div style="text-align:center; color:var(--color-gris-texto); font-size:0.8rem;">▲ Arcada superior</div>
+
+    <hr style="margin:20px 0; border-color:var(--color-gris-claro);">
+
+    <div style="text-align:center; color:var(--color-gris-texto); font-size:0.8rem;">▼ Arcada inferior</div>
+    <div class="odontograma-arcada">
+        {% for numero in dientes_abajo %}
+            <div class="diente" data-diente="{{ numero }}" onclick="abrirModal('{{ numero }}')">
+                {{ numero }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:20px; font-size:0.85rem;">
+        <span><span class="badge badge-rojo">■</span> Caries</span>
+        <span><span class="badge badge-azul">■</span> Obturado</span>
+        <span><span class="badge badge-amarillo">■</span> Corona</span>
+        <span><span class="badge badge-gris">■</span> Ausente</span>
+    </div>
+</div>
+
+<!-- Modal simple para registrar hallazgo -->
+<div id="modal-diente" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:100;">
+    <div class="card" style="width:400px; background:white;">
+        <h3>Diente <span id="modal-numero-diente"></span></h3>
+        <form method="post" action="{% url 'clientes:registrar_odontograma' paciente.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="diente_numero" id="input-diente-numero">
+            <div class="form-grupo">
+                <label>Hallazgo / Tratamiento</label>
+                <select name="hallazgo" required>
+                    {% for valor, etiqueta in hallazgos %}
+                        <option value="{{ valor }}">{{ etiqueta }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-grupo">
+                <label>Procedimiento relacionado (opcional, para cotizacion)</label>
+                <select name="procedimiento_relacionado">
+                    <option value="">-- Ninguno --</option>
+                    {% for proc in procedimientos %}
+                        <option value="{{ proc.id }}">{{ proc.nombre }} (${{ proc.precio }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-grupo">
+                <label>Notas</label>
+                <input type="text" name="notas">
+            </div>
+            <button type="submit" class="btn btn-primario">Guardar</button>
+            <button type="button" class="btn btn-secundario" onclick="cerrarModal()">Cancelar</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Historial de registros</h3>
+    <table>
+        <thead><tr><th>Fecha</th><th>Diente</th><th>Hallazgo</th><th>Doctor</th><th>Notas</th></tr></thead>
+        <tbody>
+        {% for r in historial %}
+            <tr>
+                <td>{{ r.fecha|date:"d/m/Y" }}</td>
+                <td>{{ r.diente_numero }}</td>
+                <td><span class="badge badge-azul">{{ r.get_hallazgo_display }}</span></td>
+                <td>{{ r.doctor.get_full_name }}</td>
+                <td>{{ r.notas }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">Sin registros todavia.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function abrirModal(numeroDiente) {
+    document.getElementById('modal-numero-diente').innerText = numeroDiente;
+    document.getElementById('input-diente-numero').value = numeroDiente;
+    document.getElementById('modal-diente').style.display = 'flex';
+}
+function cerrarModal() {
+    document.getElementById('modal-diente').style.display = 'none';
+}
+</script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}{{ paciente.nombre_completo }}{% endblock %}
+
+{% block contenido_app %}
+<div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2>{{ paciente.nombre_completo }} <span style="color:var(--color-gris-texto); font-size:0.9rem;">({{ paciente.cedula }})</span></h2>
+    <div>
+        <a href="{% url 'clientes:editar_paciente' paciente.id %}" class="btn btn-outline">Editar</a>
+        <a href="{% url 'clientes:odontograma' paciente.id %}" class="btn btn-outline">Odontograma</a>
+        <a href="{% url 'clientes:crear_cotizacion' paciente.id %}" class="btn btn-primario">+ Cotizacion</a>
+    </div>
+</div>
+
+<div class="grid-kpis" style="margin-top:20px;">
+    <div class="card-kpi">
+        <div class="valor">${{ total_pagado }}</div>
+        <div class="etiqueta">Total pagado</div>
+    </div>
+    <div class="card-kpi">
+        <div class="valor">{{ historias|length }}</div>
+        <div class="etiqueta">Historias registradas</div>
+    </div>
+    <div class="card-kpi">
+        <div class="valor">{{ cotizaciones|length }}</div>
+        <div class="etiqueta">Cotizaciones</div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Datos de contacto</h3>
+    <p><strong>Telefono:</strong> {{ paciente.telefono|default:"-" }} &nbsp; | &nbsp; <strong>WhatsApp:</strong> {{ paciente.telefono_whatsapp|default:"-" }}</p>
+    <p><strong>Correo:</strong> {{ paciente.correo|default:"-" }}</p>
+    <p><strong>Alergias:</strong> {{ paciente.alergias|default:"Ninguna registrada" }}</p>
+</div>
+
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Historias clinicas</h3>
+        <a href="{% url 'clientes:crear_historia' paciente.id %}" class="btn btn-outline">+ Agregar</a>
+    </div>
+    {% for h in historias %}
+        <div style="border-bottom:1px solid var(--color-gris-claro); padding:10px 0;">
+            <strong>{{ h.fecha|date:"d/m/Y" }}</strong> - {{ h.motivo_consulta }}
+            <p style="color:var(--color-gris-texto); margin:4px 0 0;">{{ h.diagnostico }}</p>
+        </div>
+    {% empty %}
+        <p style="color:var(--color-gris-texto);">Sin historias registradas.</p>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Fotos</h3>
+        <form method="post" action="{% url 'clientes:subir_foto' paciente.id %}" enctype="multipart/form-data" style="display:flex; gap:8px; align-items:center;">
+            {% csrf_token %}
+            <select name="momento">
+                <option value="antes">Antes</option>
+                <option value="durante">Durante</option>
+                <option value="despues">Despues</option>
+            </select>
+            <input type="file" name="imagen" accept="image/*" required>
+            <button type="submit" class="btn btn-outline">Subir</button>
+        </form>
+    </div>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:12px;">
+        {% for foto in fotos %}
+            <div style="text-align:center;">
+                <img src="{{ foto.imagen.url }}" style="width:120px; height:120px; object-fit:cover; border-radius:8px; border:1px solid var(--color-gris-borde);">
+                <div><span class="badge badge-azul">{{ foto.get_momento_display }}</span></div>
+            </div>
+        {% empty %}
+            <p style="color:var(--color-gris-texto);">Sin fotos.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <h3>Cotizaciones</h3>
+    <table>
+        <thead><tr><th>Numero</th><th>Fecha</th><th>Estado</th><th>Total</th><th></th></tr></thead>
+        <tbody>
+        {% for c in cotizaciones %}
+            <tr>
+                <td>{{ c.numero }}</td>
+                <td>{{ c.fecha_creacion|date:"d/m/Y" }}</td>
+                <td><span class="badge badge-azul">{{ c.get_estado_display }}</span></td>
+                <td>${{ c.total }}</td>
+                <td><a href="{% url 'clientes:detalle_cotizacion' c.id %}" class="btn btn-outline">Ver</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">Sin cotizaciones.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Pagos</h3>
+        <a href="{% url 'clientes:registrar_pago' paciente.id %}" class="btn btn-outline">+ Registrar pago</a>
+    </div>
+    <table>
+        <thead><tr><th>Fecha</th><th>Monto</th><th>Metodo</th></tr></thead>
+        <tbody>
+        {% for pago in pagos %}
+            <tr><td>{{ pago.fecha|date:"d/m/Y" }}</td><td>${{ pago.monto }}</td><td>{{ pago.metodo }}</td></tr>
+        {% empty %}
+            <tr><td colspan="3">Sin pagos registrados.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

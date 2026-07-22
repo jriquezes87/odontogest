@@ -1,0 +1,74 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Calendario{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.10/index.global.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.10/index.global.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.10/locales/es.global.min.js"></script>
+{% endblock %}
+
+{% block contenido_app %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h2>Calendario de citas</h2>
+    <div>
+        {% if doctores|length > 1 %}
+        <select id="filtro-doctor" class="form-grupo" style="display:inline-block; width:auto;">
+            <option value="">Todos los doctores</option>
+            {% for d in doctores %}
+                <option value="{{ d.id }}">{{ d.get_full_name }}</option>
+            {% endfor %}
+        </select>
+        {% endif %}
+        <a href="{% url 'clientes:crear_cita' %}" class="btn btn-primario">+ Nueva cita</a>
+    </div>
+</div>
+
+<div class="card">
+    <div id="calendario"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendario');
+    const filtroDoctor = document.getElementById('filtro-doctor');
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        editable: true,
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: function(info, successCallback, failureCallback) {
+            let url = "{% url 'clientes:eventos_calendario_json' %}";
+            if (filtroDoctor && filtroDoctor.value) {
+                url += '?doctor_id=' + filtroDoctor.value;
+            }
+            fetch(url).then(r => r.json()).then(data => successCallback(data)).catch(failureCallback);
+        },
+        eventDrop: function(info) {
+            fetch(`/app/citas/${info.event.id}/mover/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ nueva_fecha_hora: info.event.start.toISOString() })
+            }).then(r => r.json()).then(data => {
+                if (!data.ok) {
+                    alert('No se pudo mover la cita');
+                    info.revert();
+                }
+            });
+        }
+    });
+    calendar.render();
+
+    if (filtroDoctor) {
+        filtroDoctor.addEventListener('change', () => calendar.refetchEvents());
+    }
+});
+</script>
+{% endblock %}

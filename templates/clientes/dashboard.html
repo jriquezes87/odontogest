@@ -1,0 +1,72 @@
+{% extends "clientes/_layout_app.html" %}
+
+{% block titulo %}Dashboard - {{ MARCA_APP_NOMBRE }}{% endblock %}
+
+{% block contenido_app %}
+<h2>Hola, {{ user.first_name|default:user.username }}</h2>
+
+<div class="grid-kpis">
+    <div class="card-kpi">
+        <div class="valor">{{ citas_hoy|length }}</div>
+        <div class="etiqueta">Citas de hoy</div>
+    </div>
+    <div class="card-kpi">
+        <div class="valor">{{ cotizaciones_pendientes|length }}</div>
+        <div class="etiqueta">Cotizaciones por aprobar</div>
+    </div>
+    <div class="card-kpi">
+        <div class="valor">{{ citas_por_crear|length }}</div>
+        <div class="etiqueta">Citas pendientes por crear</div>
+    </div>
+    <div class="card-kpi">
+        <div class="valor">${{ ingresos_mes }}</div>
+        <div class="etiqueta">Cobrado este mes</div>
+    </div>
+    <div class="card-kpi">
+        <div class="valor">{{ total_pacientes }}</div>
+        <div class="etiqueta">Pacientes activos</div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Citas de hoy</h3>
+    {% if citas_hoy %}
+    <table>
+        <thead><tr><th>Hora</th><th>Paciente</th><th>Doctor</th><th>Estado</th></tr></thead>
+        <tbody>
+        {% for cita in citas_hoy %}
+            <tr>
+                <td>{{ cita.fecha_hora|date:"H:i" }}</td>
+                <td><a href="{% url 'clientes:detalle_paciente' cita.paciente.id %}">{{ cita.paciente.nombre_completo }}</a></td>
+                <td>{{ cita.doctor.get_full_name }}</td>
+                <td><span class="badge badge-azul">{{ cita.get_estado_display }}</span></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color: var(--color-gris-texto);">No hay citas programadas para hoy.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Cotizaciones pendientes de aprobacion</h3>
+    {% if cotizaciones_pendientes %}
+    <table>
+        <thead><tr><th>Numero</th><th>Paciente</th><th>Total</th><th></th></tr></thead>
+        <tbody>
+        {% for cot in cotizaciones_pendientes %}
+            <tr>
+                <td>{{ cot.numero }}</td>
+                <td>{{ cot.paciente.nombre_completo }}</td>
+                <td>${{ cot.total }}</td>
+                <td><a href="{% url 'clientes:detalle_cotizacion' cot.id %}" class="btn btn-outline">Ver</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color: var(--color-gris-texto);">No hay cotizaciones pendientes.</p>
+    {% endif %}
+</div>
+{% endblock %}

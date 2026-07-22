@@ -1,0 +1,35 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Agregar doctor{% endblock %}
+
+{% block contenido_app %}
+<h2>Agregar doctor al consultorio</h2>
+
+<form method="post" class="card" style="max-width:500px;">
+    {% csrf_token %}
+    <div class="form-grupo">
+        <label>Nombres</label>
+        <input type="text" name="nombres" required>
+    </div>
+    <div class="form-grupo">
+        <label>Apellidos</label>
+        <input type="text" name="apellidos" required>
+    </div>
+    <div class="form-grupo">
+        <label>Correo (sera su usuario de acceso)</label>
+        <input type="email" name="correo" required>
+    </div>
+    <div class="form-grupo">
+        <label>Clave temporal</label>
+        <input type="password" name="password" required>
+    </div>
+    <div class="form-grupo">
+        <label>Especialidad</label>
+        <input type="text" name="especialidad">
+    </div>
+    <div class="form-grupo">
+        <label>Numero de colegiatura</label>
+        <input type="text" name="numero_colegiatura">
+    </div>
+    <button type="submit" class="btn btn-primario">Agregar doctor</button>
+</form>
+{% endblock %}

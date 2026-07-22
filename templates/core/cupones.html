@@ -1,0 +1,30 @@
+{% extends "core/_layout_admin.html" %}
+{% block titulo %}Cupones{% endblock %}
+
+{% block contenido_admin %}
+<h2>Cupones y promociones</h2>
+<p style="color:var(--color-gris-texto);">Los cupones se gestionan desde el panel de administracion de Django (<a href="/admin/core/cupon/">/admin</a>) mientras se construye esta pantalla a medida.</p>
+
+<div class="card">
+    <table>
+        <thead><tr><th>Codigo</th><th>Tipo</th><th>Valor</th><th>Usos</th><th>Expira</th><th>Estado</th></tr></thead>
+        <tbody>
+        {% for c in cupones %}
+            <tr>
+                <td>{{ c.codigo }}</td>
+                <td>{{ c.get_tipo_descuento_display }}</td>
+                <td>{{ c.valor }}</td>
+                <td>{{ c.usos_actuales }} / {{ c.usos_maximos }}</td>
+                <td>{{ c.fecha_expiracion|date:"d/m/Y"|default:"Sin expiracion" }}</td>
+                <td>
+                    {% if c.disponible %}<span class="badge badge-verde">Disponible</span>
+                    {% else %}<span class="badge badge-gris">No disponible</span>{% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6">Aun no hay cupones creados.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<div class="layout-app">
+    <aside class="sidebar">
+        <a href="{% url 'clientes:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}activo{% endif %}">Dashboard</a>
+        <a href="{% url 'clientes:calendario' %}" class="{% if request.resolver_match.url_name == 'calendario' %}activo{% endif %}">Calendario</a>
+        <a href="{% url 'clientes:lista_pacientes' %}" class="{% if 'paciente' in request.resolver_match.url_name %}activo{% endif %}">Pacientes</a>
+        <a href="{% url 'clientes:lista_cotizaciones' %}" class="{% if 'cotizacion' in request.resolver_match.url_name %}activo{% endif %}">Cotizaciones</a>
+        <a href="{% url 'clientes:lista_pagos' %}" class="{% if request.resolver_match.url_name == 'lista_pagos' %}activo{% endif %}">Pagos</a>
+        <a href="{% url 'clientes:lista_procedimientos' %}" class="{% if 'procedimiento' in request.resolver_match.url_name %}activo{% endif %}">Procedimientos</a>
+        <a href="{% url 'clientes:lista_equipo' %}" class="{% if 'equipo' in request.resolver_match.url_name or 'doctor' in request.resolver_match.url_name %}activo{% endif %}">Mi equipo</a>
+    </aside>
+    <main class="contenido-principal">
+        {% block contenido_app %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

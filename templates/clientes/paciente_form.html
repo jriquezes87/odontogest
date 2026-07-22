@@ -1,0 +1,53 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}{% if paciente %}Editar paciente{% else %}Nuevo paciente{% endif %}{% endblock %}
+
+{% block contenido_app %}
+<h2>{% if paciente %}Editar paciente{% else %}Nuevo paciente{% endif %}</h2>
+
+<form method="post" class="card" style="max-width:600px;">
+    {% csrf_token %}
+    {% if not paciente %}
+    <div class="form-grupo">
+        <label>Cedula de identidad (identificador unico)</label>
+        <input type="text" name="cedula" required>
+    </div>
+    {% endif %}
+    <div class="form-grupo">
+        <label>Nombres</label>
+        <input type="text" name="nombres" value="{{ paciente.nombres|default:'' }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Apellidos</label>
+        <input type="text" name="apellidos" value="{{ paciente.apellidos|default:'' }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Fecha de nacimiento</label>
+        <input type="date" name="fecha_nacimiento" value="{{ paciente.fecha_nacimiento|date:'Y-m-d'|default:'' }}">
+    </div>
+    <div class="form-grupo">
+        <label>Telefono</label>
+        <input type="text" name="telefono" value="{{ paciente.telefono|default:'' }}">
+    </div>
+    <div class="form-grupo">
+        <label>Telefono WhatsApp (para recordatorios)</label>
+        <input type="text" name="telefono_whatsapp" value="{{ paciente.telefono_whatsapp|default:'' }}" placeholder="+58...">
+    </div>
+    <div class="form-grupo">
+        <label>Correo</label>
+        <input type="email" name="correo" value="{{ paciente.correo|default:'' }}">
+    </div>
+    <div class="form-grupo">
+        <label>Direccion</label>
+        <input type="text" name="direccion" value="{{ paciente.direccion|default:'' }}">
+    </div>
+    <div class="form-grupo">
+        <label>Alergias</label>
+        <textarea name="alergias" rows="2">{{ paciente.alergias|default:'' }}</textarea>
+    </div>
+    <div class="form-grupo">
+        <label>Antecedentes medicos</label>
+        <textarea name="antecedentes_medicos" rows="3">{{ paciente.antecedentes_medicos|default:'' }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primario">Guardar</button>
+</form>
+{% endblock %}

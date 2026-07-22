@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es-ve">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}{{ MARCA_APP_NOMBRE }}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            {% if consultorio_actual and consultorio_actual.logo %}
+                <img src="{{ consultorio_actual.logo.url }}" alt="Logo">
+                {{ consultorio_actual.nombre_practica }}
+            {% else %}
+                {{ MARCA_APP_NOMBRE }}
+            {% endif %}
+        </div>
+        <nav>
+            {% if user.is_authenticated %}
+                {% if user.rol == 'super_admin' %}
+                    <a href="{% url 'core:dashboard_admin' %}">Panel</a>
+                    <a href="{% url 'core:suscripciones' %}">Suscripciones</a>
+                    <a href="{% url 'core:pagos' %}">Pagos</a>
+                {% else %}
+                    <a href="{% url 'clientes:dashboard' %}">Dashboard</a>
+                {% endif %}
+                <a href="{% url 'cuentas:logout' %}">Cerrar sesion</a>
+            {% else %}
+                <a href="{% url 'landing:precios' %}">Precios</a>
+                <a href="{% url 'cuentas:login' %}">Iniciar sesion</a>
+                <a href="{% url 'landing:registro' %}" class="btn btn-primario">Registrarme</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <div class="mensajes-contenedor" style="max-width:1200px; margin: 12px auto 0;">
+        {% if messages %}
+        <div class="mensajes">
+            {% for message in messages %}
+                <div class="mensaje mensaje-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    {% block contenido %}{% endblock %}
+</body>
+</html>

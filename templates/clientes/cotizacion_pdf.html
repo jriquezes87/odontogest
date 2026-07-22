@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es-ve">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ cotizacion.numero }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #1F2937; padding: 40px; }
+        .encabezado { display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #5B9BD5; padding-bottom: 16px; margin-bottom: 24px; }
+        .encabezado img { height: 50px; }
+        h1 { color: #5B9BD5; font-size: 1.4rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th { background-color: #EAF2FA; text-align: left; padding: 8px; font-size: 0.85rem; }
+        td { padding: 8px; border-bottom: 1px solid #F3F4F6; font-size: 0.9rem; }
+        .total { text-align: right; font-size: 1.2rem; font-weight: bold; margin-top: 16px; color: #5B9BD5; }
+    </style>
+</head>
+<body>
+    <div class="encabezado">
+        <div>
+            {% if consultorio_actual.logo %}<img src="{{ consultorio_actual.logo.url }}">{% endif %}
+            <h1>{{ consultorio_actual.nombre_practica|default:MARCA_APP_NOMBRE }}</h1>
+        </div>
+        <div style="text-align:right;">
+            <strong>{{ cotizacion.numero }}</strong><br>
+            {{ cotizacion.fecha_creacion|date:"d/m/Y" }}
+        </div>
+    </div>
+
+    <p><strong>Paciente:</strong> {{ cotizacion.paciente.nombre_completo }} ({{ cotizacion.paciente.cedula }})</p>
+    <p><strong>Doctor:</strong> {{ cotizacion.doctor.get_full_name }}</p>
+
+    <table>
+        <thead><tr><th>Procedimiento</th><th>Diente</th><th>Cant.</th><th>Precio unit.</th><th>Subtotal</th></tr></thead>
+        <tbody>
+        {% for item in cotizacion.items.all %}
+            <tr>
+                <td>{{ item.procedimiento.nombre }}</td>
+                <td>{{ item.diente_numero|default:"-" }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>${{ item.precio_unitario }}</td>
+                <td>${{ item.subtotal }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total">Total: ${{ cotizacion.total }}</div>
+
+    {% if cotizacion.notas %}<p style="margin-top:20px;"><strong>Notas:</strong> {{ cotizacion.notas }}</p>{% endif %}
+</body>
+</html>

@@ -1,0 +1,33 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Mi equipo{% endblock %}
+
+{% block contenido_app %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>Mi equipo</h2>
+    {% if user.es_admin_consultorio %}
+        <a href="{% url 'clientes:crear_doctor' %}" class="btn btn-primario">+ Agregar doctor</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <table>
+        <thead><tr><th>Nombre</th><th>Rol</th><th>Especialidad</th><th>Correo</th><th>Estado</th></tr></thead>
+        <tbody>
+        {% for miembro in equipo %}
+            <tr>
+                <td>{{ miembro.get_full_name }}</td>
+                <td>{{ miembro.get_rol_display }}</td>
+                <td>{{ miembro.especialidad|default:"-" }}</td>
+                <td>{{ miembro.email }}</td>
+                <td>
+                    {% if miembro.activo_en_consultorio %}<span class="badge badge-verde">Activo</span>
+                    {% else %}<span class="badge badge-gris">Inactivo</span>{% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">Aun no hay doctores registrados.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+venv/
+env/
+.venv/
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+/static/admin/
+
+# Variables de entorno (NUNCA subir claves reales)
+.env
+.env.local
+
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Render
+.render-buildlogs/

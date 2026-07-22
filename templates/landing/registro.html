@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titulo %}Registrate - {{ MARCA_APP_NOMBRE }}{% endblock %}
+
+{% block contenido %}
+<div class="contenedor" style="max-width:500px;">
+    <h1>Crea tu cuenta</h1>
+    <p style="color:var(--color-gris-texto);">14 dias de prueba gratis, sin tarjeta de credito.</p>
+
+    <form method="post" class="card">
+        {% csrf_token %}
+        <div class="form-grupo">
+            <label>Nombre de tu consultorio o practica</label>
+            <input type="text" name="nombre_practica" required>
+        </div>
+        <div class="form-grupo">
+            <label>Subdominio (para tu acceso, ej: "clinicasonrisa")</label>
+            <input type="text" name="subdominio" required pattern="[a-z0-9-]+" title="Solo letras minusculas, numeros y guiones">
+        </div>
+        <div class="form-grupo">
+            <label>Tu nombre</label>
+            <input type="text" name="nombre_admin" required>
+        </div>
+        <div class="form-grupo">
+            <label>Correo electronico</label>
+            <input type="email" name="correo" required>
+        </div>
+        <div class="form-grupo">
+            <label>Clave</label>
+            <input type="password" name="password" required minlength="8">
+        </div>
+        <div class="form-grupo">
+            <label>Plan</label>
+            <select name="plan_id" required>
+                {% for plan in planes %}
+                    <option value="{{ plan.id }}">{{ plan.nombre }} (${{ plan.precio_mensual }}/mes)</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primario" style="width:100%;">Crear mi cuenta</button>
+    </form>
+</div>
+{% endblock %}

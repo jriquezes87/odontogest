@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block contenido %}
+<div class="layout-app">
+    <aside class="sidebar">
+        <a href="{% url 'core:dashboard_admin' %}" class="{% if request.resolver_match.url_name == 'dashboard_admin' %}activo{% endif %}">Dashboard</a>
+        <a href="{% url 'core:suscripciones' %}" class="{% if request.resolver_match.url_name == 'suscripciones' %}activo{% endif %}">Suscripciones</a>
+        <a href="{% url 'core:pagos' %}" class="{% if request.resolver_match.url_name == 'pagos' %}activo{% endif %}">Pagos</a>
+        <a href="{% url 'core:cupones' %}" class="{% if request.resolver_match.url_name == 'cupones' %}activo{% endif %}">Cupones</a>
+    </aside>
+    <main class="contenido-principal">
+        {% block contenido_admin %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

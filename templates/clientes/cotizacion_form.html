@@ -1,0 +1,49 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Nueva cotizacion{% endblock %}
+
+{% block contenido_app %}
+<h2>Nueva cotizacion - {{ paciente.nombre_completo }}</h2>
+
+<form method="post" class="card">
+    {% csrf_token %}
+    <table id="tabla-items">
+        <thead><tr><th>Procedimiento</th><th>Diente</th><th>Cantidad</th><th></th></tr></thead>
+        <tbody>
+            <tr>
+                <td>
+                    <select name="procedimiento_id" required>
+                        <option value="">-- Seleccionar --</option>
+                        {% for proc in procedimientos %}
+                            <option value="{{ proc.id }}">{{ proc.nombre }} (${{ proc.precio }})</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><input type="text" name="diente_numero" placeholder="Ej: 21" style="width:80px;"></td>
+                <td><input type="number" name="cantidad" value="1" min="1" style="width:70px;"></td>
+                <td><button type="button" class="btn btn-secundario" onclick="quitarFila(this)">Quitar</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-outline" onclick="agregarFila()" style="margin-top:10px;">+ Agregar procedimiento</button>
+
+    <div class="form-grupo" style="margin-top:20px;">
+        <label>Notas</label>
+        <textarea name="notas" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primario">Crear cotizacion</button>
+</form>
+
+<script>
+function agregarFila() {
+    const tabla = document.querySelector('#tabla-items tbody');
+    const fila = tabla.rows[0].cloneNode(true);
+    fila.querySelectorAll('input').forEach(i => i.value = i.name === 'cantidad' ? '1' : '');
+    tabla.appendChild(fila);
+}
+function quitarFila(btn) {
+    const tabla = document.querySelector('#tabla-items tbody');
+    if (tabla.rows.length > 1) btn.closest('tr').remove();
+}
+</script>
+{% endblock %}

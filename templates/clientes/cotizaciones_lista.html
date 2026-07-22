@@ -1,0 +1,30 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Cotizaciones{% endblock %}
+
+{% block contenido_app %}
+<h2>Cotizaciones</h2>
+
+<div class="card">
+    <table>
+        <thead><tr><th>Numero</th><th>Paciente</th><th>Fecha</th><th>Estado</th><th>Total</th><th></th></tr></thead>
+        <tbody>
+        {% for c in cotizaciones %}
+            <tr>
+                <td>{{ c.numero }}</td>
+                <td>{{ c.paciente.nombre_completo }}</td>
+                <td>{{ c.fecha_creacion|date:"d/m/Y" }}</td>
+                <td>
+                    {% if c.estado == 'aprobada' %}<span class="badge badge-verde">{{ c.get_estado_display }}</span>
+                    {% elif c.estado == 'rechazada' %}<span class="badge badge-rojo">{{ c.get_estado_display }}</span>
+                    {% else %}<span class="badge badge-azul">{{ c.get_estado_display }}</span>{% endif %}
+                </td>
+                <td>${{ c.total }}</td>
+                <td><a href="{% url 'clientes:detalle_cotizacion' c.id %}" class="btn btn-outline">Ver</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6">Sin cotizaciones registradas.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

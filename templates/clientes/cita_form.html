@@ -1,0 +1,68 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}{% if cita %}Editar cita{% else %}Nueva cita{% endif %}{% endblock %}
+
+{% block contenido_app %}
+<h2>{% if cita %}Editar cita{% else %}Nueva cita{% endif %}</h2>
+
+<form method="post" class="card" style="max-width:500px;">
+    {% csrf_token %}
+    {% if not cita %}
+    <div class="form-grupo">
+        <label>Paciente</label>
+        <select name="paciente_id" required>
+            <option value="">-- Seleccionar --</option>
+            {% for p in pacientes %}
+                <option value="{{ p.id }}" {% if paciente_preseleccionado == p.id|stringformat:"s" %}selected{% endif %}>{{ p.nombre_completo }} ({{ p.cedula }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-grupo">
+        <label>Doctor</label>
+        <select name="doctor_id" required>
+            {% for d in doctores %}
+                <option value="{{ d.id }}">{{ d.get_full_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if cotizacion_id %}
+        <input type="hidden" name="creada_desde_cotizacion" value="{{ cotizacion_id }}">
+        <p style="color:var(--color-gris-texto); font-size:0.85rem;">Esta cita se esta creando a partir de una cotizacion aprobada.</p>
+    {% endif %}
+    {% endif %}
+
+    <div class="form-grupo">
+        <label>Fecha y hora</label>
+        <input type="datetime-local" name="fecha_hora" value="{{ cita.fecha_hora|date:'Y-m-d\TH:i'|default:'' }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Duracion (minutos)</label>
+        <input type="number" name="duracion_minutos" value="{{ cita.duracion_minutos|default:'30' }}">
+    </div>
+    <div class="form-grupo">
+        <label>Motivo</label>
+        <input type="text" name="motivo" value="{{ cita.motivo|default:'' }}">
+    </div>
+    {% if not cita %}
+    <div class="form-grupo">
+        <label>Enviar recordatorio WhatsApp (horas antes)</label>
+        <input type="number" name="recordatorio_horas_antes" value="24">
+    </div>
+    {% else %}
+    <div class="form-grupo">
+        <label>Estado</label>
+        <select name="estado">
+            <option value="pendiente" {% if cita.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+            <option value="confirmada" {% if cita.estado == 'confirmada' %}selected{% endif %}>Confirmada</option>
+            <option value="completada" {% if cita.estado == 'completada' %}selected{% endif %}>Completada</option>
+            <option value="cancelada" {% if cita.estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
+            <option value="no_asistio" {% if cita.estado == 'no_asistio' %}selected{% endif %}>No asistio</option>
+        </select>
+    </div>
+    <div class="form-grupo">
+        <label>Notas</label>
+        <textarea name="notas" rows="3">{{ cita.notas|default:'' }}</textarea>
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primario">Guardar</button>
+</form>
+{% endblock %}
