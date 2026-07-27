@@ -6,7 +6,7 @@
     <h2>{{ paciente.nombre_completo }} <span style="color:var(--color-gris-texto); font-size:0.9rem;">({{ paciente.cedula }})</span></h2>
     <div>
         <a href="{% url 'clientes:editar_paciente' paciente.id %}" class="btn btn-outline">Editar</a>
-        <a href="{% url 'clientes:odontograma' paciente.id %}" class="btn btn-outline">Odontograma</a>
+        <a href="{% url 'clientes:odontograma' paciente.id %}" class="btn btn-outline">Odontodiagrama</a>
         <a href="{% url 'clientes:plan_tratamiento' paciente.id %}" class="btn btn-outline">Plan de tratamiento</a>
         <a href="{% url 'clientes:crear_cotizacion' paciente.id %}" class="btn btn-primario">+ Cotizacion</a>
     </div>
