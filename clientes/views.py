@@ -218,7 +218,9 @@ def registrar_odontograma(request, paciente_id):
 # ---------------------------------------------------------------------------
 @login_required
 def calendario(request):
-    doctores = Usuario.objects.filter(rol='doctor', activo_en_consultorio=True)
+    doctores = Usuario.objects.filter(
+        consultorio=request.user.consultorio, rol='doctor', activo_en_consultorio=True
+    )
     return render(request, 'clientes/calendario.html', {'doctores': doctores})
 
 
@@ -263,7 +265,9 @@ def crear_cita(request):
         return redirect('clientes:calendario')
 
     pacientes = Paciente.objects.filter(activo=True)
-    doctores = Usuario.objects.filter(rol='doctor', activo_en_consultorio=True)
+    doctores = Usuario.objects.filter(
+        consultorio=request.user.consultorio, rol='doctor', activo_en_consultorio=True
+    )
     paciente_preseleccionado = request.GET.get('paciente_id')
     cotizacion_id = request.GET.get('cotizacion_id')
     return render(request, 'clientes/cita_form.html', {
@@ -461,7 +465,9 @@ def editar_procedimiento(request, procedimiento_id):
 # ---------------------------------------------------------------------------
 @login_required
 def lista_equipo(request):
-    equipo = Usuario.objects.filter(rol__in=['doctor', 'admin_consultorio'])
+    equipo = Usuario.objects.filter(
+        consultorio=request.user.consultorio, rol__in=['doctor', 'admin_consultorio']
+    )
     return render(request, 'clientes/equipo_lista.html', {'equipo': equipo})
 
 
@@ -479,6 +485,7 @@ def crear_doctor(request):
             first_name=request.POST.get('nombres'),
             last_name=request.POST.get('apellidos'),
             rol='doctor',
+            consultorio=request.user.consultorio,
             especialidad=request.POST.get('especialidad', ''),
             numero_colegiatura=request.POST.get('numero_colegiatura', ''),
         )

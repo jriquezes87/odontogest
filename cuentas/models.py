@@ -18,6 +18,16 @@ class Usuario(AbstractUser):
     ]
 
     rol = models.CharField(max_length=20, choices=ROLES, default='doctor')
+
+    # A que consultorio pertenece este usuario. El super_admin no tiene
+    # (queda None, vive solo en el schema publico). Como Usuario vive en
+    # el schema publico (app compartida), esta FK es la unica forma de
+    # saber a que consultorio pertenece cada quien.
+    consultorio = models.ForeignKey(
+        'core.Consultorio', on_delete=models.CASCADE,
+        null=True, blank=True, related_name='usuarios'
+    )
+
     telefono = models.CharField(max_length=30, blank=True)
     foto = models.ImageField(upload_to='usuarios/', blank=True, null=True)
 
