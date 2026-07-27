@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, Prefetch
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from xhtml2pdf import pisa
@@ -58,13 +58,26 @@ def dashboard(request):
 @login_required
 def lista_pacientes(request):
     query = request.GET.get('q', '').strip()
-    pacientes = Paciente.objects.filter(activo=True)
+    pacientes = Paciente.objects.filter(activo=True).prefetch_related(
+        Prefetch(
+            'cotizaciones',
+            queryset=Cotizacion.objects.filter(estado='aprobada').prefetch_related('items', 'pagos'),
+            to_attr='cotizaciones_aprobadas',
+        )
+    )
     if query:
         pacientes = pacientes.filter(
             Q(cedula__icontains=query) |
             Q(nombres__icontains=query) |
             Q(apellidos__icontains=query)
         )
+
+    pacientes = list(pacientes)
+    for paciente in pacientes:
+        paciente.tiene_saldo_pendiente = any(
+            c.saldo_pendiente > 0 for c in paciente.cotizaciones_aprobadas
+        )
+
     return render(request, 'clientes/pacientes_lista.html', {'pacientes': pacientes, 'query': query})
 
 
@@ -294,6 +307,7 @@ def crear_cita(request):
     if request.method == 'POST':
         paciente_id = request.POST.get('paciente_id')
         paciente = get_object_or_404(Paciente, id=paciente_id)
+        cotizacion_id = request.POST.get('creada_desde_cotizacion') or None
 
         Cita.objects.create(
             paciente=paciente,
@@ -302,7 +316,10 @@ def crear_cita(request):
             duracion_minutos=request.POST.get('duracion_minutos', 30),
             motivo=request.POST.get('motivo', ''),
             recordatorio_whatsapp_horas_antes=request.POST.get('recordatorio_horas_antes', 24),
+            creada_desde_cotizacion_id=cotizacion_id,
         )
+        if cotizacion_id:
+            Cotizacion.objects.filter(id=cotizacion_id).update(cita_generada=True)
         messages.success(request, 'Cita creada correctamente.')
         return redirect('clientes:calendario')
 
@@ -424,10 +441,8 @@ def aprobar_cotizacion(request, cotizacion_id):
     cotizacion.estado = 'aprobada'
     cotizacion.fecha_aprobacion = timezone.now()
     cotizacion.save()
-    messages.success(request, f'Cotizacion {cotizacion.numero} aprobada. Ahora puedes crear la cita.')
-    return redirect(
-        f"/app/citas/nueva/?paciente_id={cotizacion.paciente.id}&cotizacion_id={cotizacion.id}"
-    )
+    messages.success(request, f'Cotizacion {cotizacion.numero} aprobada.')
+    return redirect('clientes:detalle_cotizacion', cotizacion_id=cotizacion.id)
 
 
 def _resolver_uri_para_pdf(uri, rel):
@@ -589,9 +604,20 @@ def mi_dia(request):
         citas_hoy_qs = citas_hoy_qs.filter(doctor=request.user)
         citas_pendientes_qs = citas_pendientes_qs.filter(doctor=request.user)
 
+    cotizaciones_aprobadas_qs = Cotizacion.objects.filter(estado='aprobada').select_related(
+        'paciente', 'doctor'
+    ).prefetch_related('items', 'pagos')
+    if request.user.es_doctor:
+        cotizaciones_aprobadas_qs = cotizaciones_aprobadas_qs.filter(doctor=request.user)
+
+    citas_por_agendar = cotizaciones_aprobadas_qs.filter(cita_generada=False)
+    cobros_pendientes = [c for c in cotizaciones_aprobadas_qs if c.saldo_pendiente > 0]
+
     return render(request, 'clientes/mi_dia.html', {
         'citas_hoy': citas_hoy_qs,
         'citas_pendientes': citas_pendientes_qs,
+        'citas_por_agendar': citas_por_agendar,
+        'cobros_pendientes': cobros_pendientes,
         'hoy': hoy,
     })
 

@@ -140,6 +140,14 @@ class Cotizacion(models.Model):
     def total(self):
         return sum(item.subtotal for item in self.items.all())
 
+    @property
+    def total_pagado(self):
+        return sum(pago.monto for pago in self.pagos.all())
+
+    @property
+    def saldo_pendiente(self):
+        return self.total - self.total_pagado
+
 
 class CotizacionItem(models.Model):
     cotizacion = models.ForeignKey(
@@ -174,7 +182,7 @@ class PagoPaciente(models.Model):
         Paciente, on_delete=models.CASCADE, related_name='pagos'
     )
     cotizacion = models.ForeignKey(
-        Cotizacion, on_delete=models.SET_NULL, null=True, blank=True
+        Cotizacion, on_delete=models.SET_NULL, null=True, blank=True, related_name='pagos'
     )
     cuenta = models.ForeignKey(
         CuentaCobro, on_delete=models.SET_NULL, null=True
