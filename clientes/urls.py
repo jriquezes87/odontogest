@@ -24,6 +24,7 @@ urlpatterns = [
     # Odontograma
     path('pacientes/<int:paciente_id>/odontograma/', views.odontograma, name='odontograma'),
     path('pacientes/<int:paciente_id>/odontograma/registrar/', views.registrar_odontograma, name='registrar_odontograma'),
+    path('pacientes/<int:paciente_id>/odontograma/agregar-pendientes/', views.agregar_pendientes_a_cotizacion, name='agregar_pendientes_cotizacion'),
 
     # Citas y calendario
     path('calendario/', views.calendario, name='calendario'),
@@ -36,6 +37,7 @@ urlpatterns = [
     path('cotizaciones/', views.lista_cotizaciones, name='lista_cotizaciones'),
     path('cotizaciones/nueva/<int:paciente_id>/', views.crear_cotizacion, name='crear_cotizacion'),
     path('cotizaciones/<int:cotizacion_id>/', views.detalle_cotizacion, name='detalle_cotizacion'),
+    path('cotizaciones/<int:cotizacion_id>/enviar/', views.enviar_cotizacion, name='enviar_cotizacion'),
     path('cotizaciones/<int:cotizacion_id>/aprobar/', views.aprobar_cotizacion, name='aprobar_cotizacion'),
     path('cotizaciones/<int:cotizacion_id>/pdf/', views.cotizacion_pdf, name='cotizacion_pdf'),
 

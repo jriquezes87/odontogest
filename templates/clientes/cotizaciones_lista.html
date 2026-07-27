@@ -16,6 +16,7 @@
                 <td>
                     {% if c.estado == 'aprobada' %}<span class="badge badge-verde">{{ c.get_estado_display }}</span>
                     {% elif c.estado == 'rechazada' %}<span class="badge badge-rojo">{{ c.get_estado_display }}</span>
+                    {% elif c.estado == 'borrador' %}<span class="badge badge-gris">{{ c.get_estado_display }}</span>
                     {% else %}<span class="badge badge-azul">{{ c.get_estado_display }}</span>{% endif %}
                 </td>
                 <td>${{ c.total }}</td>

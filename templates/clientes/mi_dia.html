@@ -4,6 +4,10 @@
 {% block contenido_app %}
 <div class="pagina-header">
     <h2>Mi dia — {{ hoy|date:"l j \d\e F" }}</h2>
+    <div style="display:flex; gap:8px;">
+        <a href="{% url 'clientes:crear_paciente' %}" class="btn btn-outline">+ Nuevo paciente</a>
+        <a href="{% url 'clientes:crear_cita' %}" class="btn btn-primario">+ Nueva cita</a>
+    </div>
 </div>
 
 <div class="card">

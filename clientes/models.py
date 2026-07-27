@@ -258,6 +258,7 @@ class OdontogramaRegistro(models.Model):
     procedimiento_relacionado = models.ForeignKey(
         Procedimiento, on_delete=models.SET_NULL, null=True, blank=True
     )
+    agregado_a_cotizacion = models.BooleanField(default=False)
     fecha = models.DateTimeField(default=timezone.now)
     notas = models.CharField(max_length=255, blank=True)
 

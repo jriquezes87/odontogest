@@ -5,7 +5,7 @@ from django.contrib import messages
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('clientes:dashboard')
+        return redirect('clientes:mi_dia')
 
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -17,7 +17,7 @@ def login_view(request):
             siguiente = request.GET.get('next')
             if user.rol == 'super_admin':
                 return redirect('core:dashboard_admin')
-            return redirect(siguiente or 'clientes:dashboard')
+            return redirect(siguiente or 'clientes:mi_dia')
         else:
             messages.error(request, 'Usuario o clave incorrectos.')
 

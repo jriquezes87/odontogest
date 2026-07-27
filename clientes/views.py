@@ -183,6 +183,10 @@ def odontograma(request, paciente_id):
         if registro.diente_numero not in estado_por_diente:
             estado_por_diente[registro.diente_numero] = registro
 
+    pendientes = paciente.odontograma.filter(
+        procedimiento_relacionado__isnull=False, agregado_a_cotizacion=False
+    ).select_related('procedimiento_relacionado')
+
     contexto = {
         'paciente': paciente,
         'dientes_arriba': DIENTES_FDI[0],
@@ -191,6 +195,7 @@ def odontograma(request, paciente_id):
         'historial': registros,
         'procedimientos': Procedimiento.objects.filter(activo=True),
         'hallazgos': OdontogramaRegistro.HALLAZGOS,
+        'pendientes': pendientes,
     }
     return render(request, 'clientes/odontograma.html', contexto)
 
@@ -211,6 +216,39 @@ def registrar_odontograma(request, paciente_id):
     )
     messages.success(request, f"Diente {request.POST.get('diente_numero')} actualizado.")
     return redirect('clientes:odontograma', paciente_id=paciente.id)
+
+
+@login_required
+@require_POST
+def agregar_pendientes_a_cotizacion(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    registro_ids = request.POST.getlist('registro_id')
+    registros = OdontogramaRegistro.objects.filter(
+        id__in=registro_ids, paciente=paciente, agregado_a_cotizacion=False
+    ).select_related('procedimiento_relacionado')
+
+    if not registros:
+        messages.error(request, 'Selecciona al menos un pendiente para agregar.')
+        return redirect('clientes:odontograma', paciente_id=paciente.id)
+
+    cotizacion = Cotizacion.objects.filter(paciente=paciente, estado='borrador').first()
+    if not cotizacion:
+        cotizacion = Cotizacion.objects.create(paciente=paciente, doctor=request.user, estado='borrador')
+
+    total = len(registros)
+    for registro in registros:
+        CotizacionItem.objects.create(
+            cotizacion=cotizacion,
+            procedimiento=registro.procedimiento_relacionado,
+            diente_numero=registro.diente_numero,
+            cantidad=1,
+            precio_unitario=registro.procedimiento_relacionado.precio,
+        )
+        registro.agregado_a_cotizacion = True
+        registro.save()
+
+    messages.success(request, f'{total} pendiente(s) agregados a la cotizacion {cotizacion.numero}.')
+    return redirect('clientes:detalle_cotizacion', cotizacion_id=cotizacion.id)
 
 
 # ---------------------------------------------------------------------------
@@ -364,6 +402,16 @@ def crear_cotizacion(request, paciente_id):
 def detalle_cotizacion(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
     return render(request, 'clientes/cotizacion_detalle.html', {'cotizacion': cotizacion})
+
+
+@login_required
+def enviar_cotizacion(request, cotizacion_id):
+    cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
+    if cotizacion.estado == 'borrador':
+        cotizacion.estado = 'enviada'
+        cotizacion.save()
+        messages.success(request, f'Cotizacion {cotizacion.numero} enviada.')
+    return redirect('clientes:detalle_cotizacion', cotizacion_id=cotizacion.id)
 
 
 @login_required
