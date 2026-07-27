@@ -9,6 +9,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+    {% block navbar %}
     <header class="navbar">
         <div class="logo">
             {% if consultorio_actual and consultorio_actual.logo %}
@@ -22,10 +23,6 @@
             {% if user.is_authenticated %}
                 {% if user.rol == 'super_admin' %}
                     <a href="{% url 'core:dashboard_admin' %}">Panel</a>
-                    <a href="{% url 'core:usuarios' %}">Usuarios</a>
-                    <a href="{% url 'core:planes' %}">Planes</a>
-                    <a href="{% url 'core:suscripciones' %}">Suscripciones</a>
-                    <a href="{% url 'core:pagos' %}">Pagos</a>
                 {% else %}
                     <a href="{% url 'clientes:dashboard' %}">Dashboard</a>
                 {% endif %}
@@ -40,7 +37,9 @@
             {% endif %}
         </nav>
     </header>
+    {% endblock %}
 
+    {% block mensajes %}
     <div class="mensajes-contenedor" style="max-width:1200px; margin: 12px auto 0;">
         {% if messages %}
         <div class="mensajes">
@@ -50,6 +49,7 @@
         </div>
         {% endif %}
     </div>
+    {% endblock %}
 
     {% block contenido %}{% endblock %}
 </body>

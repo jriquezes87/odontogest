@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block navbar %}{% endblock %}
+
+{% block mensajes %}
+<div class="mensajes-contenedor" style="max-width:1200px; margin: 16px 32px 0;">
+    {% if messages %}
+    <div class="mensajes">
+        {% for message in messages %}
+            <div class="mensaje mensaje-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block contenido %}
+<div class="app-shell">
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar-marca">
+                {% if consultorio_actual and consultorio_actual.logo %}
+                    <img src="{{ consultorio_actual.logo.url }}" alt="Logo">
+                {% endif %}
+                <span>{{ consultorio_actual.nombre_practica|default:MARCA_APP_NOMBRE }}</span>
+            </div>
+            <nav class="sidebar-nav">
+                {% block sidebar_nav %}{% endblock %}
+            </nav>
+        </div>
+        <div class="sidebar-pie">
+            <div class="sidebar-usuario">
+                <span class="avatar">{{ user.first_name|default:user.username|first|upper }}</span>
+                <div class="info">
+                    <div class="nombre">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="rol">{{ user.get_rol_display }}</div>
+                </div>
+            </div>
+            <form method="post" action="{% url 'cuentas:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="sidebar-logout">Cerrar sesion &amp; salir</button>
+            </form>
+        </div>
+    </aside>
+    <main class="app-contenido">
+        {% block contenido_app %}{% endblock %}
+    </main>
+</div>
+{% endblock %}
