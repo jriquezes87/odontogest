@@ -8,3 +8,4 @@ whitenoise>=6.12,<7.0
 django-storages>=1.14,<2.0
 boto3>=1.43,<2.0
 gunicorn>=26.0,<27.0
+xhtml2pdf>=0.2.16,<0.3
