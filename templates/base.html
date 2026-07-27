@@ -28,7 +28,10 @@
                 {% else %}
                     <a href="{% url 'clientes:dashboard' %}">Dashboard</a>
                 {% endif %}
-                <a href="{% url 'cuentas:logout' %}">Cerrar sesion</a>
+                <form method="post" action="{% url 'cuentas:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="enlace-nav">Cerrar sesion</button>
+                </form>
             {% else %}
                 <a href="{% url 'landing:precios' %}">Precios</a>
                 <a href="{% url 'cuentas:login' %}">Iniciar sesion</a>
