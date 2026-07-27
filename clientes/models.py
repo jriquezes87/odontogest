@@ -158,6 +158,15 @@ class CotizacionItem(models.Model):
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
 
+    # Plan de tratamiento: una vez aprobada la cotizacion, cada item se
+    # convierte en un paso del tratamiento que el odontologo puede
+    # marcar como completado y reordenar arrastrando.
+    completado = models.BooleanField(default=False)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['orden', 'id']
+
     @property
     def subtotal(self):
         return self.cantidad * self.precio_unitario
