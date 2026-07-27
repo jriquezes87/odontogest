@@ -69,18 +69,17 @@ git push -u origin main
    - `DATABASE_URL`: copia el "Internal Connection String" de tu base de datos Postgres
    - `MARCA_APP_NOMBRE`: el nombre generico de tu app (puedes cambiarlo cuando quieras)
 
-## 3. Primer despliegue: crear tu usuario super-admin
+## 3. Primer despliegue: tu usuario super-admin
 
-Una vez desplegado, entra a la consola de Render (Shell, dentro del
-Web Service) y ejecuta:
+El `preDeployCommand` de `render.yaml` crea el usuario super-admin
+automaticamente (`python manage.py bootstrap_superadmin`), usando las
+variables de entorno `ADMIN_USERNAME`, `ADMIN_EMAIL` y `ADMIN_PASSWORD`
+(esta ultima se genera sola con `generateValue: true`). Ya puede entrar a
+`/admin/` y a `/panel/` sin pasos manuales.
 
-```bash
-python manage.py createsuperuser
-```
-
-Esto crea un usuario que puedes usar para entrar a `/admin` y, si le
-asignas `rol = super_admin` desde ahi, tambien podra usar el panel
-en `/panel/`.
+Para ver la clave generada: en el dashboard de Render entra al Web
+Service `odontogest-web` -> pestana **Environment** -> `ADMIN_PASSWORD`.
+Cambiala despues de tu primera entrada si vas a usar la app en serio.
 
 ## 4. Crear tus planes de suscripcion
 
