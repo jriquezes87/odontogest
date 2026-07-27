@@ -441,6 +441,12 @@ tr:hover td { background-color: var(--color-superficie); }
 .diente.endodoncia { background-color: #F0E4F7; border-color: #9B6FC4; }
 .diente.implante { background-color: var(--color-exito-suave); border-color: var(--color-exito); }
 
+.diente.seleccionado {
+  border-color: #2563AC;
+  border-width: 3px;
+  box-shadow: 0 0 0 2px rgba(37, 99, 172, 0.25);
+}
+
 .landing-hero {
   text-align: center;
   padding: 90px 24px;

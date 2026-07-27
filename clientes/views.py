@@ -242,6 +242,37 @@ def registrar_odontograma(request, paciente_id):
 
 @login_required
 @require_POST
+def registrar_odontograma_multiple(request, paciente_id):
+    """
+    Igual que registrar_odontograma, pero aplica el mismo hallazgo /
+    procedimiento a varios dientes de una vez (ej. blanqueamiento, que
+    no es un tratamiento de un diente en particular).
+    """
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    procedimiento_id = request.POST.get('procedimiento_relacionado') or None
+    hallazgo = request.POST.get('hallazgo')
+    notas = request.POST.get('notas', '')
+    numeros = [d.strip() for d in request.POST.get('dientes', '').split(',') if d.strip()]
+
+    if not numeros:
+        messages.error(request, 'Selecciona al menos un diente.')
+        return redirect('clientes:odontograma', paciente_id=paciente.id)
+
+    for numero in numeros:
+        OdontogramaRegistro.objects.create(
+            paciente=paciente,
+            diente_numero=numero,
+            hallazgo=hallazgo,
+            doctor=request.user,
+            procedimiento_relacionado_id=procedimiento_id,
+            notas=notas,
+        )
+    messages.success(request, f'{len(numeros)} dientes actualizados.')
+    return redirect('clientes:odontograma', paciente_id=paciente.id)
+
+
+@login_required
+@require_POST
 def agregar_pendientes_a_cotizacion(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
     registro_ids = request.POST.getlist('registro_id')

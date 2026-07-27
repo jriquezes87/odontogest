@@ -24,6 +24,7 @@ urlpatterns = [
     # Odontograma
     path('pacientes/<int:paciente_id>/odontograma/', views.odontograma, name='odontograma'),
     path('pacientes/<int:paciente_id>/odontograma/registrar/', views.registrar_odontograma, name='registrar_odontograma'),
+    path('pacientes/<int:paciente_id>/odontograma/registrar-multiple/', views.registrar_odontograma_multiple, name='registrar_odontograma_multiple'),
     path('pacientes/<int:paciente_id>/odontograma/agregar-pendientes/', views.agregar_pendientes_a_cotizacion, name='agregar_pendientes_cotizacion'),
 
     # Citas y calendario

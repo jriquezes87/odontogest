@@ -1,11 +1,11 @@
 {% extends "clientes/_layout_app.html" %}
 {% load clientes_extras %}
-{% block titulo %}Odontograma - {{ paciente.nombre_completo }}{% endblock %}
+{% block titulo %}Odontodiagrama - {{ paciente.nombre_completo }}{% endblock %}
 
 {% block contenido_app %}
 <div class="pagina-header">
     <h2>
-        Odontograma - {{ paciente.nombre_completo }}
+        Odontodiagrama - {{ paciente.nombre_completo }}
         {% if pendientes %}
             <span class="badge badge-rojo">● Pendientes por cotizar</span>
         {% else %}
@@ -16,17 +16,26 @@
 
 <div style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;">
     <div class="card" style="flex:2; min-width:400px;">
-        <p style="color:var(--color-gris-texto); font-size:0.9rem;">
-            Haz clic en un diente para registrar un hallazgo o tratamiento. Notacion FDI.
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <p style="color:var(--color-gris-texto); font-size:0.9rem; margin:0;">
+                Haz clic en un diente para registrar un hallazgo o tratamiento. Notacion FDI.
+            </p>
+            <div style="display:flex; gap:8px;">
+                <button type="button" id="btn-modo-seleccion" class="btn btn-outline" onclick="alternarModoSeleccion()">Seleccion multiple</button>
+                <button type="button" id="btn-aplicar-seleccion" class="btn btn-primario" style="display:none;" onclick="abrirModalMultiple()">Aplicar tratamiento a seleccion (0)</button>
+            </div>
+        </div>
+        <p id="texto-modo-seleccion" style="color:var(--color-gris-texto); font-size:0.82rem; display:none; margin:8px 0 0;">
+            Modo seleccion activo: haz clic en varios dientes (ej. para un blanqueamiento general) y luego pulsa "Aplicar tratamiento a seleccion".
         </p>
 
-        <div class="odontograma-arcada">
+        <div class="odontograma-arcada" style="margin-top:16px;">
             {% for numero in dientes_arriba %}
                 {% with registro=estado_por_diente|get_item:numero %}
                 <div class="diente {% if registro %}{{ registro.hallazgo }}{% endif %}"
                      data-diente="{{ numero }}"
                      title="{% if registro %}{{ registro.get_hallazgo_display }}{% endif %}"
-                     onclick="abrirModal('{{ numero }}')">
+                     onclick="clicDiente('{{ numero }}')">
                     {{ numero }}
                 </div>
                 {% endwith %}
@@ -43,7 +52,7 @@
                 <div class="diente {% if registro %}{{ registro.hallazgo }}{% endif %}"
                      data-diente="{{ numero }}"
                      title="{% if registro %}{{ registro.get_hallazgo_display }}{% endif %}"
-                     onclick="abrirModal('{{ numero }}')">
+                     onclick="clicDiente('{{ numero }}')">
                     {{ numero }}
                 </div>
                 {% endwith %}
@@ -85,11 +94,11 @@
     </div>
 </div>
 
-<!-- Modal simple para registrar hallazgo -->
+<!-- Modal para registrar hallazgo (un diente o varios, segun el modo) -->
 <div id="modal-diente" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:100;">
     <div class="card" style="width:400px; background:white;">
-        <h3>Diente <span id="modal-numero-diente"></span></h3>
-        <form method="post" action="{% url 'clientes:registrar_odontograma' paciente.id %}">
+        <h3>Diente(s) <span id="modal-numero-diente"></span></h3>
+        <form id="form-odontograma" method="post">
             {% csrf_token %}
             <input type="hidden" name="diente_numero" id="input-diente-numero">
             <div class="form-grupo">
@@ -145,11 +154,66 @@
 </div>
 
 <script>
-function abrirModal(numeroDiente) {
-    document.getElementById('modal-numero-diente').innerText = numeroDiente;
-    document.getElementById('input-diente-numero').value = numeroDiente;
+const URL_REGISTRAR_UNO = "{% url 'clientes:registrar_odontograma' paciente.id %}";
+const URL_REGISTRAR_VARIOS = "{% url 'clientes:registrar_odontograma_multiple' paciente.id %}";
+
+let modoSeleccion = false;
+let seleccionados = new Set();
+
+function alternarModoSeleccion() {
+    modoSeleccion = !modoSeleccion;
+    seleccionados.clear();
+    actualizarSeleccionUI();
+
+    const boton = document.getElementById('btn-modo-seleccion');
+    boton.textContent = modoSeleccion ? 'Cancelar seleccion' : 'Seleccion multiple';
+    boton.classList.toggle('btn-primario', modoSeleccion);
+    boton.classList.toggle('btn-outline', !modoSeleccion);
+    document.getElementById('texto-modo-seleccion').style.display = modoSeleccion ? 'block' : 'none';
+}
+
+function clicDiente(numero) {
+    if (modoSeleccion) {
+        if (seleccionados.has(numero)) {
+            seleccionados.delete(numero);
+        } else {
+            seleccionados.add(numero);
+        }
+        actualizarSeleccionUI();
+    } else {
+        abrirModal(numero);
+    }
+}
+
+function actualizarSeleccionUI() {
+    document.querySelectorAll('.diente').forEach(el => {
+        el.classList.toggle('seleccionado', seleccionados.has(el.dataset.diente));
+    });
+    const boton = document.getElementById('btn-aplicar-seleccion');
+    boton.style.display = seleccionados.size > 0 ? 'inline-block' : 'none';
+    boton.textContent = `Aplicar tratamiento a seleccion (${seleccionados.size})`;
+}
+
+function abrirModal(numero) {
+    document.getElementById('modal-numero-diente').innerText = numero;
+    const input = document.getElementById('input-diente-numero');
+    input.name = 'diente_numero';
+    input.value = numero;
+    document.getElementById('form-odontograma').action = URL_REGISTRAR_UNO;
     document.getElementById('modal-diente').style.display = 'flex';
 }
+
+function abrirModalMultiple() {
+    if (seleccionados.size === 0) return;
+    const lista = [...seleccionados];
+    document.getElementById('modal-numero-diente').innerText = lista.join(', ');
+    const input = document.getElementById('input-diente-numero');
+    input.name = 'dientes';
+    input.value = lista.join(',');
+    document.getElementById('form-odontograma').action = URL_REGISTRAR_VARIOS;
+    document.getElementById('modal-diente').style.display = 'flex';
+}
+
 function cerrarModal() {
     document.getElementById('modal-diente').style.display = 'none';
 }
