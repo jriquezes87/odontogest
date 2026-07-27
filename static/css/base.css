@@ -472,3 +472,35 @@ tr:hover td { background-color: var(--color-superficie); }
   color: #101114;
 }
 .landing-hero .btn-primario:hover { background-color: #D9DADD; color: #101114; }
+
+/* --- Plan de tratamiento (checklist arrastrable) --- */
+.lista-tratamiento { list-style: none; padding: 0; margin: 0; }
+
+.item-tratamiento {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-gris-borde);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background-color: var(--color-fondo);
+}
+
+.item-tratamiento .handle {
+  color: var(--color-gris-texto);
+  cursor: grab;
+  user-select: none;
+  font-size: 1.1rem;
+}
+
+.item-tratamiento.arrastrando { opacity: 0.4; }
+
+.item-tratamiento .nombre { flex: 1; font-size: 0.92rem; }
+
+.item-tratamiento.completado .nombre {
+  text-decoration: line-through;
+  color: var(--color-gris-texto);
+}
+
+.item-tratamiento .precio { color: var(--color-gris-texto); font-size: 0.85rem; }

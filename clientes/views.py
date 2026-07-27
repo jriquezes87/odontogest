@@ -111,6 +111,9 @@ def crear_paciente(request):
 @login_required
 def detalle_paciente(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
+    items_tratamiento = CotizacionItem.objects.filter(
+        cotizacion__paciente=paciente, cotizacion__estado='aprobada'
+    )
     contexto = {
         'paciente': paciente,
         'historias': paciente.historias.all()[:10],
@@ -118,6 +121,8 @@ def detalle_paciente(request, paciente_id):
         'cotizaciones': paciente.cotizaciones.all()[:10],
         'pagos': paciente.pagos.all()[:10],
         'total_pagado': paciente.pagos.aggregate(total=Sum('monto'))['total'] or 0,
+        'plan_total': len(items_tratamiento),
+        'plan_completados': sum(1 for item in items_tratamiento if item.completado),
     }
     return render(request, 'clientes/paciente_detalle.html', contexto)
 
@@ -478,6 +483,50 @@ def cotizacion_pdf(request, cotizacion_id):
     if resultado.err:
         return HttpResponse('Ocurrio un error generando el PDF.', status=500)
     return response
+
+
+# ---------------------------------------------------------------------------
+# Plan de tratamiento (items de cotizaciones aprobadas, con avance y orden)
+# ---------------------------------------------------------------------------
+@login_required
+def plan_tratamiento(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    items = CotizacionItem.objects.filter(
+        cotizacion__paciente=paciente, cotizacion__estado='aprobada'
+    ).select_related('procedimiento', 'cotizacion')
+
+    total = len(items)
+    completados = sum(1 for item in items if item.completado)
+
+    return render(request, 'clientes/plan_tratamiento.html', {
+        'paciente': paciente,
+        'items': items,
+        'total': total,
+        'completados': completados,
+    })
+
+
+@login_required
+@require_POST
+def marcar_item_tratamiento(request, item_id):
+    item = get_object_or_404(CotizacionItem, id=item_id, cotizacion__estado='aprobada')
+    item.completado = not item.completado
+    item.save()
+    return JsonResponse({'ok': True, 'completado': item.completado})
+
+
+@login_required
+@require_POST
+def reordenar_tratamiento(request, paciente_id):
+    try:
+        data = json.loads(request.body)
+        for indice, item_id in enumerate(data.get('orden', [])):
+            CotizacionItem.objects.filter(
+                id=item_id, cotizacion__paciente_id=paciente_id
+            ).update(orden=indice)
+        return JsonResponse({'ok': True})
+    except (ValueError, KeyError) as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
 
 
 # ---------------------------------------------------------------------------

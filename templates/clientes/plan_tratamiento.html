@@ -1,0 +1,114 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Plan de tratamiento - {{ paciente.nombre_completo }}{% endblock %}
+
+{% block contenido_app %}
+<div class="pagina-header">
+    <h2>Plan de tratamiento - {{ paciente.nombre_completo }}</h2>
+    <a href="{% url 'clientes:detalle_paciente' paciente.id %}" class="btn btn-outline">Volver a la ficha</a>
+</div>
+
+<div class="card">
+    <p style="color:var(--color-gris-texto); font-size:0.9rem;">
+        Estos son los procedimientos de las cotizaciones aprobadas de este paciente.
+        Marca la casilla a medida que avances y arrastra <span class="handle">⠿</span> para reordenar.
+    </p>
+
+    <p id="progreso-texto" style="font-weight:600; margin:14px 0;">
+        {{ completados }} de {{ total }} completados
+    </p>
+
+    {% if items %}
+    <ul id="lista-tratamiento" class="lista-tratamiento">
+        {% for item in items %}
+        <li class="item-tratamiento{% if item.completado %} completado{% endif %}" draggable="true" data-id="{{ item.id }}">
+            <span class="handle">⠿</span>
+            <input type="checkbox" {% if item.completado %}checked{% endif %} onchange="alternarItem({{ item.id }}, this)">
+            <span class="nombre">
+                {{ item.procedimiento.nombre }}
+                {% if item.diente_numero %}&mdash; Diente {{ item.diente_numero }}{% endif %}
+                <span style="color:var(--color-gris-texto); font-size:0.8rem;">({{ item.cotizacion.numero }})</span>
+            </span>
+            <span class="precio">${{ item.subtotal }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p style="color:var(--color-gris-texto);">Este paciente aun no tiene cotizaciones aprobadas.</p>
+    {% endif %}
+</div>
+
+<script>
+const lista = document.getElementById('lista-tratamiento');
+let arrastrando = null;
+
+if (lista) {
+    lista.querySelectorAll('.item-tratamiento').forEach(registrarArrastre);
+}
+
+function registrarArrastre(item) {
+    item.addEventListener('dragstart', () => {
+        arrastrando = item;
+        item.classList.add('arrastrando');
+    });
+    item.addEventListener('dragend', () => {
+        item.classList.remove('arrastrando');
+        guardarOrden();
+    });
+}
+
+if (lista) {
+    lista.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (!arrastrando) return;
+        const despuesDe = elementoDespuesDe(lista, e.clientY);
+        if (despuesDe == null) {
+            lista.appendChild(arrastrando);
+        } else {
+            lista.insertBefore(arrastrando, despuesDe);
+        }
+    });
+}
+
+function elementoDespuesDe(contenedor, y) {
+    const elementos = [...contenedor.querySelectorAll('.item-tratamiento:not(.arrastrando)')];
+    return elementos.reduce((masCercano, hijo) => {
+        const caja = hijo.getBoundingClientRect();
+        const offset = y - caja.top - caja.height / 2;
+        if (offset < 0 && offset > masCercano.offset) {
+            return { offset: offset, elemento: hijo };
+        }
+        return masCercano;
+    }, { offset: Number.NEGATIVE_INFINITY, elemento: null }).elemento;
+}
+
+function guardarOrden() {
+    const ids = [...lista.querySelectorAll('.item-tratamiento')].map(el => el.dataset.id);
+    fetch("{% url 'clientes:reordenar_tratamiento' paciente.id %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({ orden: ids }),
+    });
+}
+
+function alternarItem(itemId, checkbox) {
+    fetch(`/app/tratamiento/${itemId}/marcar/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+    })
+    .then(r => r.json())
+    .then(data => {
+        checkbox.closest('.item-tratamiento').classList.toggle('completado', data.completado);
+        actualizarProgreso();
+    });
+}
+
+function actualizarProgreso() {
+    const items = lista.querySelectorAll('.item-tratamiento');
+    const completados = lista.querySelectorAll('.item-tratamiento.completado').length;
+    document.getElementById('progreso-texto').textContent = `${completados} de ${items.length} completados`;
+}
+</script>
+{% endblock %}

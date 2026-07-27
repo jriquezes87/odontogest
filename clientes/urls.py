@@ -33,6 +33,11 @@ urlpatterns = [
     path('citas/<int:cita_id>/mover/', views.mover_cita, name='mover_cita'),
     path('citas/<int:cita_id>/editar/', views.editar_cita, name='editar_cita'),
 
+    # Plan de tratamiento
+    path('pacientes/<int:paciente_id>/tratamiento/', views.plan_tratamiento, name='plan_tratamiento'),
+    path('pacientes/<int:paciente_id>/tratamiento/reordenar/', views.reordenar_tratamiento, name='reordenar_tratamiento'),
+    path('tratamiento/<int:item_id>/marcar/', views.marcar_item_tratamiento, name='marcar_item_tratamiento'),
+
     # Cotizaciones
     path('cotizaciones/', views.lista_cotizaciones, name='lista_cotizaciones'),
     path('cotizaciones/nueva/<int:paciente_id>/', views.crear_cotizacion, name='crear_cotizacion'),
