@@ -1,41 +1,87 @@
 {% extends "clientes/_layout_app.html" %}
+{% load clientes_extras %}
 {% block titulo %}Odontograma - {{ paciente.nombre_completo }}{% endblock %}
 
 {% block contenido_app %}
-<h2>Odontograma - {{ paciente.nombre_completo }}</h2>
+<div class="pagina-header">
+    <h2>
+        Odontograma - {{ paciente.nombre_completo }}
+        {% if pendientes %}
+            <span class="badge badge-rojo">● Pendientes por cotizar</span>
+        {% else %}
+            <span class="badge badge-verde">● Sin pendientes</span>
+        {% endif %}
+    </h2>
+</div>
 
-<div class="card">
-    <p style="color:var(--color-gris-texto); font-size:0.9rem;">
-        Haz clic en un diente para registrar un hallazgo o tratamiento. Notacion FDI.
-    </p>
+<div style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;">
+    <div class="card" style="flex:2; min-width:400px;">
+        <p style="color:var(--color-gris-texto); font-size:0.9rem;">
+            Haz clic en un diente para registrar un hallazgo o tratamiento. Notacion FDI.
+        </p>
 
-    <div class="odontograma-arcada">
-        {% for numero in dientes_arriba %}
-            <div class="diente"
-                 data-diente="{{ numero }}"
-                 onclick="abrirModal('{{ numero }}')">
-                {{ numero }}
-            </div>
-        {% endfor %}
+        <div class="odontograma-arcada">
+            {% for numero in dientes_arriba %}
+                {% with registro=estado_por_diente|get_item:numero %}
+                <div class="diente {% if registro %}{{ registro.hallazgo }}{% endif %}"
+                     data-diente="{{ numero }}"
+                     title="{% if registro %}{{ registro.get_hallazgo_display }}{% endif %}"
+                     onclick="abrirModal('{{ numero }}')">
+                    {{ numero }}
+                </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
+        <div style="text-align:center; color:var(--color-gris-texto); font-size:0.8rem;">▲ Arcada superior</div>
+
+        <hr style="margin:20px 0; border-color:var(--color-gris-claro);">
+
+        <div style="text-align:center; color:var(--color-gris-texto); font-size:0.8rem;">▼ Arcada inferior</div>
+        <div class="odontograma-arcada">
+            {% for numero in dientes_abajo %}
+                {% with registro=estado_por_diente|get_item:numero %}
+                <div class="diente {% if registro %}{{ registro.hallazgo }}{% endif %}"
+                     data-diente="{{ numero }}"
+                     title="{% if registro %}{{ registro.get_hallazgo_display }}{% endif %}"
+                     onclick="abrirModal('{{ numero }}')">
+                    {{ numero }}
+                </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
+
+        <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:20px; font-size:0.85rem;">
+            <span><span class="badge badge-rojo">■</span> Caries</span>
+            <span><span class="badge badge-azul">■</span> Obturado</span>
+            <span><span class="badge badge-amarillo">■</span> Corona</span>
+            <span><span class="badge badge-gris">■</span> Ausente</span>
+        </div>
     </div>
-    <div style="text-align:center; color:var(--color-gris-texto); font-size:0.8rem;">▲ Arcada superior</div>
 
-    <hr style="margin:20px 0; border-color:var(--color-gris-claro);">
-
-    <div style="text-align:center; color:var(--color-gris-texto); font-size:0.8rem;">▼ Arcada inferior</div>
-    <div class="odontograma-arcada">
-        {% for numero in dientes_abajo %}
-            <div class="diente" data-diente="{{ numero }}" onclick="abrirModal('{{ numero }}')">
-                {{ numero }}
-            </div>
-        {% endfor %}
-    </div>
-
-    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:20px; font-size:0.85rem;">
-        <span><span class="badge badge-rojo">■</span> Caries</span>
-        <span><span class="badge badge-azul">■</span> Obturado</span>
-        <span><span class="badge badge-amarillo">■</span> Corona</span>
-        <span><span class="badge badge-gris">■</span> Ausente</span>
+    <div class="card" style="flex:1; min-width:300px;">
+        <h3>Pendientes por cotizar</h3>
+        {% if pendientes %}
+        <form method="post" action="{% url 'clientes:agregar_pendientes_cotizacion' paciente.id %}">
+            {% csrf_token %}
+            {% for p in pendientes %}
+                <label style="display:flex; gap:8px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--color-gris-claro); font-size:0.9rem;">
+                    <input type="checkbox" name="registro_id" value="{{ p.id }}" checked style="margin-top:4px;">
+                    <span>
+                        <strong>Diente {{ p.diente_numero }}</strong> — {{ p.get_hallazgo_display }}<br>
+                        <span style="color:var(--color-gris-texto); font-size:0.85rem;">
+                            {{ p.procedimiento_relacionado.nombre }} (${{ p.procedimiento_relacionado.precio }})
+                        </span>
+                    </span>
+                </label>
+            {% endfor %}
+            <button type="submit" class="btn btn-primario" style="width:100%; margin-top:12px;">Agregar a cotizacion</button>
+        </form>
+        <p style="color:var(--color-gris-texto); font-size:0.8rem; margin-top:8px;">
+            Se agregan a la cotizacion en borrador de este paciente, o se crea una nueva si no hay ninguna.
+        </p>
+        {% else %}
+            <p style="color:var(--color-gris-texto); font-size:0.9rem;">No hay hallazgos pendientes por cotizar.</p>
+        {% endif %}
     </div>
 </div>
 
@@ -76,7 +122,7 @@
 <div class="card">
     <h3>Historial de registros</h3>
     <table>
-        <thead><tr><th>Fecha</th><th>Diente</th><th>Hallazgo</th><th>Doctor</th><th>Notas</th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Diente</th><th>Hallazgo</th><th>Doctor</th><th>Notas</th><th>Cotizado</th></tr></thead>
         <tbody>
         {% for r in historial %}
             <tr>
@@ -85,9 +131,14 @@
                 <td><span class="badge badge-azul">{{ r.get_hallazgo_display }}</span></td>
                 <td>{{ r.doctor.get_full_name }}</td>
                 <td>{{ r.notas }}</td>
+                <td>
+                    {% if not r.procedimiento_relacionado %}<span style="color:var(--color-gris-texto);">-</span>
+                    {% elif r.agregado_a_cotizacion %}<span class="badge badge-verde">Si</span>
+                    {% else %}<span class="badge badge-rojo">Pendiente</span>{% endif %}
+                </td>
             </tr>
         {% empty %}
-            <tr><td colspan="5">Sin registros todavia.</td></tr>
+            <tr><td colspan="6">Sin registros todavia.</td></tr>
         {% endfor %}
         </tbody>
     </table>

@@ -109,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGIN_URL = 'cuentas:login'
-LOGIN_REDIRECT_URL = 'clientes:dashboard'
+LOGIN_REDIRECT_URL = 'clientes:mi_dia'
 LOGOUT_REDIRECT_URL = 'landing:home'
 
 # ---------------------------------------------------------------------------
