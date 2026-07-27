@@ -1,14 +1,18 @@
 import json
+import os
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponse
+from django.template.loader import render_to_string
 from django.db.models import Sum, Count, Q
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from xhtml2pdf import pisa
 
 from .models import (
     Paciente, HistoriaClinica, FotoPaciente, Procedimiento,
@@ -426,15 +430,39 @@ def aprobar_cotizacion(request, cotizacion_id):
     )
 
 
+def _resolver_uri_para_pdf(uri, rel):
+    """
+    xhtml2pdf no entiende URLs relativas de Django (/media/, /static/):
+    necesita la ruta real en disco para poder incrustar imagenes como el
+    logo del consultorio.
+    """
+    if uri.startswith(settings.MEDIA_URL):
+        ruta = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ''))
+    elif uri.startswith(settings.STATIC_URL):
+        ruta = os.path.join(settings.STATIC_ROOT, uri.replace(settings.STATIC_URL, ''))
+    else:
+        return uri
+    return ruta if os.path.isfile(ruta) else uri
+
+
 @login_required
 def cotizacion_pdf(request, cotizacion_id):
     """
-    Genera el PDF de la cotizacion. La generacion real usa una libreria
-    de PDF (ver skill de pdf del proyecto / weasyprint) tomando el
-    template cotizacion_pdf.html como base.
+    Genera un PDF real (no una pagina HTML) con los datos del consultorio,
+    el odontologo, el paciente y los items cotizados.
     """
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
-    return render(request, 'clientes/cotizacion_pdf.html', {'cotizacion': cotizacion})
+    html = render_to_string('clientes/cotizacion_pdf.html', {
+        'cotizacion': cotizacion,
+        'hoy': timezone.now(),
+    }, request=request)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{cotizacion.numero}.pdf"'
+    resultado = pisa.CreatePDF(html, dest=response, link_callback=_resolver_uri_para_pdf)
+    if resultado.err:
+        return HttpResponse('Ocurrio un error generando el PDF.', status=500)
+    return response
 
 
 # ---------------------------------------------------------------------------

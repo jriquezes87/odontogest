@@ -4,33 +4,80 @@
     <meta charset="UTF-8">
     <title>{{ cotizacion.numero }}</title>
     <style>
-        body { font-family: Arial, sans-serif; color: #1F2937; padding: 40px; }
-        .encabezado { display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid {{ consultorio_actual.color_acento|default:"#16181D" }}; padding-bottom: 16px; margin-bottom: 24px; }
-        .encabezado img { height: 50px; }
-        h1 { color: {{ consultorio_actual.color_acento|default:"#16181D" }}; font-size: 1.4rem; }
-        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        th { background-color: #F3F4F6; text-align: left; padding: 8px; font-size: 0.85rem; }
-        td { padding: 8px; border-bottom: 1px solid #F3F4F6; font-size: 0.9rem; }
-        .total { text-align: right; font-size: 1.2rem; font-weight: bold; margin-top: 16px; color: {{ consultorio_actual.color_acento|default:"#16181D" }}; }
+        @page {
+            size: letter;
+            margin: 2.2cm 1.9cm;
+        }
+        body { font-family: Helvetica, Arial, sans-serif; color: #1F2937; font-size: 10pt; }
+        table { width: 100%; border-collapse: collapse; }
+
+        .logo-consultorio { max-height: 55px; max-width: 180px; }
+        .nombre-consultorio { font-size: 15pt; font-weight: bold; color: {{ consultorio_actual.color_acento|default:"#16181D" }}; margin: 6px 0 4px; }
+        .datos-consultorio { font-size: 8.5pt; color: #6B7280; line-height: 1.5; }
+
+        .titulo-doc { text-align: right; }
+        .titulo-doc .etiqueta-doc { font-size: 10pt; letter-spacing: 2px; color: #6B7280; }
+        .titulo-doc .numero { font-size: 16pt; font-weight: bold; color: {{ consultorio_actual.color_acento|default:"#16181D" }}; margin-top: 2px; }
+        .titulo-doc .meta { font-size: 9pt; color: #6B7280; margin-top: 4px; }
+
+        .linea-separadora { border-bottom: 2px solid {{ consultorio_actual.color_acento|default:"#16181D" }}; margin: 16px 0 18px; height: 1px; font-size: 0; }
+
+        .info-paciente { margin-bottom: 20px; font-size: 9.5pt; }
+        .info-paciente td { padding: 3px 0; }
+        .etiqueta { color: #6B7280; width: 100px; }
+
+        table.items { margin-top: 6px; }
+        table.items th { background-color: #F3F4F6; text-align: left; padding: 8px; font-size: 8.5pt; color: #6B7280; border-bottom: 1px solid #E5E7EB; }
+        table.items td { padding: 8px; font-size: 9.5pt; border-bottom: 1px solid #F3F4F6; }
+
+        .total-tabla { width: 260px; margin-top: 12px; }
+        .total-tabla td { padding: 4px 8px; font-size: 10pt; }
+        .total-tabla .fila-total td { font-size: 13pt; font-weight: bold; color: {{ consultorio_actual.color_acento|default:"#16181D" }}; border-top: 2px solid {{ consultorio_actual.color_acento|default:"#16181D" }}; padding-top: 8px; }
+
+        .notas { margin-top: 26px; font-size: 9pt; color: #374151; }
+        .notas strong { color: #1F2937; }
+
+        .pie { margin-top: 50px; padding-top: 12px; border-top: 1px solid #E5E7EB; font-size: 8pt; color: #9CA3AF; text-align: center; }
     </style>
 </head>
 <body>
-    <div class="encabezado">
-        <div>
-            {% if consultorio_actual.logo %}<img src="{{ consultorio_actual.logo.url }}">{% endif %}
-            <h1>{{ consultorio_actual.nombre_practica|default:MARCA_APP_NOMBRE }}</h1>
-        </div>
-        <div style="text-align:right;">
-            <strong>{{ cotizacion.numero }}</strong><br>
-            {{ cotizacion.fecha_creacion|date:"d/m/Y" }}
-        </div>
-    </div>
+    <table class="encabezado-tabla">
+        <tr>
+            <td width="58%">
+                {% if consultorio_actual.logo %}<img src="{{ consultorio_actual.logo.url }}" class="logo-consultorio"><br>{% endif %}
+                <div class="nombre-consultorio">{{ consultorio_actual.nombre_practica|default:MARCA_APP_NOMBRE }}</div>
+                <div class="datos-consultorio">
+                    {% if consultorio_actual.ruc_o_rif %}RIF: {{ consultorio_actual.ruc_o_rif }}<br>{% endif %}
+                    {% if consultorio_actual.direccion %}{{ consultorio_actual.direccion }}<br>{% endif %}
+                    {% if consultorio_actual.telefono %}Tel: {{ consultorio_actual.telefono }}{% endif %}
+                </div>
+            </td>
+            <td class="titulo-doc" width="42%">
+                <div class="etiqueta-doc">COTIZACION</div>
+                <div class="numero">{{ cotizacion.numero }}</div>
+                <div class="meta">Fecha: {{ cotizacion.fecha_creacion|date:"d/m/Y" }}</div>
+                <div class="meta">Estado: {{ cotizacion.get_estado_display }}</div>
+            </td>
+        </tr>
+    </table>
 
-    <p><strong>Paciente:</strong> {{ cotizacion.paciente.nombre_completo }} ({{ cotizacion.paciente.cedula }})</p>
-    <p><strong>Doctor:</strong> {{ cotizacion.doctor.get_full_name }}</p>
+    <div class="linea-separadora"></div>
 
-    <table>
-        <thead><tr><th>Procedimiento</th><th>Diente</th><th>Cant.</th><th>Precio unit.</th><th>Subtotal</th></tr></thead>
+    <table class="info-paciente">
+        <tr>
+            <td class="etiqueta">Paciente</td>
+            <td>{{ cotizacion.paciente.nombre_completo }} &mdash; C.I. {{ cotizacion.paciente.cedula }}</td>
+        </tr>
+        <tr>
+            <td class="etiqueta">Odontologo</td>
+            <td>{{ cotizacion.doctor.get_full_name }}{% if cotizacion.doctor.especialidad %} &mdash; {{ cotizacion.doctor.especialidad }}{% endif %}</td>
+        </tr>
+    </table>
+
+    <table class="items">
+        <thead>
+            <tr><th>Procedimiento</th><th>Diente</th><th>Cant.</th><th>Precio unit.</th><th>Subtotal</th></tr>
+        </thead>
         <tbody>
         {% for item in cotizacion.items.all %}
             <tr>
@@ -44,8 +91,19 @@
         </tbody>
     </table>
 
-    <div class="total">Total: ${{ cotizacion.total }}</div>
+    <table class="total-tabla" align="right">
+        <tr class="fila-total">
+            <td>TOTAL</td>
+            <td style="text-align:right;">${{ cotizacion.total }}</td>
+        </tr>
+    </table>
 
-    {% if cotizacion.notas %}<p style="margin-top:20px;"><strong>Notas:</strong> {{ cotizacion.notas }}</p>{% endif %}
+    {% if cotizacion.notas %}
+    <div class="notas"><strong>Notas:</strong> {{ cotizacion.notas }}</div>
+    {% endif %}
+
+    <div class="pie">
+        {{ consultorio_actual.nombre_practica|default:MARCA_APP_NOMBRE }} &middot; Documento generado el {{ hoy|date:"d/m/Y H:i" }}
+    </div>
 </body>
 </html>

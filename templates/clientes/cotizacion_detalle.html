@@ -5,7 +5,7 @@
 <div style="display:flex; justify-content:space-between; align-items:center;">
     <h2>{{ cotizacion.numero }}</h2>
     <div>
-        <a href="{% url 'clientes:cotizacion_pdf' cotizacion.id %}" class="btn btn-outline" target="_blank">Ver PDF</a>
+        <a href="{% url 'clientes:cotizacion_pdf' cotizacion.id %}" class="btn btn-outline">Descargar PDF</a>
         {% if cotizacion.estado == 'borrador' %}
             <a href="{% url 'clientes:enviar_cotizacion' cotizacion.id %}" class="btn btn-primario">Enviar cotizacion</a>
         {% elif cotizacion.estado == 'enviada' %}
