@@ -22,6 +22,7 @@
             {% if user.is_authenticated %}
                 {% if user.rol == 'super_admin' %}
                     <a href="{% url 'core:dashboard_admin' %}">Panel</a>
+                    <a href="{% url 'core:planes' %}">Planes</a>
                     <a href="{% url 'core:suscripciones' %}">Suscripciones</a>
                     <a href="{% url 'core:pagos' %}">Pagos</a>
                 {% else %}

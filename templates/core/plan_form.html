@@ -1,0 +1,42 @@
+{% extends "core/_layout_admin.html" %}
+{% block titulo %}{% if plan %}Editar plan{% else %}Nuevo plan{% endif %}{% endblock %}
+
+{% block contenido_admin %}
+<h2>{% if plan %}Editar plan{% else %}Nuevo plan{% endif %}</h2>
+
+<form method="post" class="card" style="max-width:500px;">
+    {% csrf_token %}
+    <div class="form-grupo">
+        <label>Nombre</label>
+        <input type="text" name="nombre" value="{{ plan.nombre|default:'' }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Precio mensual (USD)</label>
+        <input type="number" name="precio_mensual" step="0.01" min="0" value="{{ plan.precio_mensual|default:'' }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Limite de pacientes</label>
+        <input type="number" name="limite_pacientes" min="1" value="{{ plan.limite_pacientes|default:100 }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Limite de doctores</label>
+        <input type="number" name="limite_doctores" min="1" value="{{ plan.limite_doctores|default:1 }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Limite de almacenamiento (GB)</label>
+        <input type="number" name="limite_storage_gb" min="1" value="{{ plan.limite_storage_gb|default:1 }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Orden (menor numero aparece primero en /precios/)</label>
+        <input type="number" name="orden" value="{{ plan.orden|default:0 }}">
+    </div>
+    <div class="form-grupo">
+        <label>
+            <input type="checkbox" name="activo" {% if plan.activo or not plan %}checked{% endif %}>
+            Activo (visible en /precios/ y para nuevos registros)
+        </label>
+    </div>
+    <button type="submit" class="btn btn-primario">Guardar</button>
+    <a href="{% url 'core:planes' %}" class="btn btn-secundario">Cancelar</a>
+</form>
+{% endblock %}
