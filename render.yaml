@@ -9,7 +9,7 @@ services:
     runtime: python
     plan: starter
     buildCommand: "./build.sh"
-    preDeployCommand: "python manage.py migrate_schemas --shared && python manage.py migrate_schemas && python manage.py bootstrap_public_tenant"
+    preDeployCommand: "python manage.py migrate_schemas --shared && python manage.py migrate_schemas && python manage.py bootstrap_public_tenant && python manage.py bootstrap_superadmin"
     startCommand: "gunicorn odontogest.wsgi:application"
     envVars:
       - key: SECRET_KEY
@@ -26,3 +26,9 @@ services:
         sync: false
       - key: PYTHON_VERSION
         value: "3.12.3"
+      - key: ADMIN_USERNAME
+        value: "admin"
+      - key: ADMIN_EMAIL
+        value: "jriquezes87@gmail.com"
+      - key: ADMIN_PASSWORD
+        generateValue: true
