@@ -1,31 +1,54 @@
 :root {
+  /* Paleta: negro, gris, blanco. Los colores de estado (verde/amarillo/rojo)
+     se mantienen porque cumplen una funcion (exito/alerta/error), no
+     decorativa. */
   --color-fondo: #FFFFFF;
-  --color-azul-suave: #EAF2FA;
-  --color-azul-acento: #5B9BD5;
-  --color-azul-hover: #4A87C0;
+  --color-superficie: #F6F6F7;
+
+  --color-azul-suave: #F0F0F1;
+  --color-azul-acento: #16181D;
+  --color-azul-hover: #000000;
+
   --color-gris-texto: #6B7280;
   --color-gris-claro: #F3F4F6;
-  --color-gris-borde: #E5E7EB;
-  --color-texto-oscuro: #1F2937;
-  --color-exito: #4CAF7D;
-  --color-alerta: #E0A93E;
-  --color-error: #DE5C5C;
+  --color-gris-borde: #E4E4E7;
+  --color-texto-oscuro: #101114;
+
+  --color-exito: #1F9D63;
+  --color-exito-suave: #E4F4EC;
+  --color-alerta: #B4690E;
+  --color-alerta-suave: #FBF1DE;
+  --color-error: #C0362C;
+  --color-error-suave: #FBEAEA;
+
+  --color-sidebar: #17181C;
+  --color-sidebar-borde: #26272C;
+  --color-sidebar-texto: #9A9DA6;
+  --color-sidebar-texto-activo: #FFFFFF;
+  --color-sidebar-hover: #202126;
+  --color-sidebar-activo-bg: #24252B;
+
+  --sombra-card: 0 1px 2px rgba(16, 17, 20, 0.04);
+  --radio: 10px;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-  background-color: var(--color-fondo);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, Arial, sans-serif;
+  background-color: var(--color-superficie);
   color: var(--color-texto-oscuro);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-a { color: var(--color-azul-acento); text-decoration: none; }
-a:hover { color: var(--color-azul-hover); }
+h1, h2, h3, h4 { letter-spacing: -0.01em; }
 
-/* --- Barra de navegacion --- */
+a { color: var(--color-azul-acento); text-decoration: none; }
+a:hover { color: var(--color-azul-hover); text-decoration: underline; }
+
+/* --- Barra de navegacion (paginas publicas: landing, login) --- */
 .navbar {
   display: flex;
   align-items: center;
@@ -39,7 +62,7 @@ a:hover { color: var(--color-azul-hover); }
   display: flex;
   align-items: center;
   gap: 10px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1.1rem;
   color: var(--color-texto-oscuro);
 }
@@ -52,7 +75,7 @@ a:hover { color: var(--color-azul-hover); }
   font-size: 0.95rem;
 }
 
-.navbar nav a:hover { color: var(--color-azul-acento); }
+.navbar nav a:hover { color: var(--color-texto-oscuro); text-decoration: none; }
 
 .navbar nav form { display: inline; margin: 0; }
 
@@ -67,69 +90,201 @@ a:hover { color: var(--color-azul-hover); }
   cursor: pointer;
 }
 
-.navbar nav .enlace-nav:hover { color: var(--color-azul-acento); }
+.navbar nav .enlace-nav:hover { color: var(--color-texto-oscuro); }
 
-/* --- Layout general --- */
+/* --- Layout general (paginas publicas) --- */
 .contenedor {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
 }
 
-.sidebar {
-  width: 220px;
-  background-color: var(--color-gris-claro);
-  min-height: 100vh;
-  padding: 20px 0;
-}
-
-.sidebar a {
-  display: block;
-  padding: 10px 24px;
-  color: var(--color-gris-texto);
-  font-size: 0.95rem;
-}
-
-.sidebar a:hover, .sidebar a.activo {
-  background-color: var(--color-azul-suave);
-  color: var(--color-azul-acento);
-  border-right: 3px solid var(--color-azul-acento);
-}
-
-.layout-app {
+/* ===========================================================
+   App shell: sidebar oscuro fijo + contenido, para /app/ y /panel/
+   =========================================================== */
+.app-shell {
   display: flex;
+  min-height: 100vh;
 }
 
-.contenido-principal {
-  flex: 1;
-  padding: 28px;
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background-color: var(--color-sidebar);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
+
+.sidebar-marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 22px 20px;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 1.02rem;
+  letter-spacing: -0.01em;
+  border-bottom: 1px solid var(--color-sidebar-borde);
+}
+
+.sidebar-marca img { height: 26px; border-radius: 4px; }
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+
+.nav-grupo-titulo {
+  color: #5C5F68;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 16px 12px 6px;
+}
+
+.nav-grupo-titulo:first-child { padding-top: 4px; }
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 7px;
+  color: var(--color-sidebar-texto);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.sidebar-nav a:hover {
+  background-color: var(--color-sidebar-hover);
+  color: var(--color-sidebar-texto-activo);
+  text-decoration: none;
+}
+
+.sidebar-nav a.activo {
+  background-color: var(--color-sidebar-activo-bg);
+  color: var(--color-sidebar-texto-activo);
+}
+
+.sidebar-pie {
+  border-top: 1px solid var(--color-sidebar-borde);
+  padding: 14px;
+}
+
+.sidebar-usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.sidebar-usuario .avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-sidebar-activo-bg);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sidebar-usuario .info { overflow: hidden; }
+
+.sidebar-usuario .nombre {
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-usuario .rol {
+  color: #6C6F79;
+  font-size: 0.75rem;
+}
+
+.sidebar-pie form { margin: 0; }
+
+.sidebar-logout {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--color-sidebar-texto);
+  font-size: 0.85rem;
+  font-family: inherit;
+  padding: 8px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.sidebar-logout:hover {
+  background-color: var(--color-sidebar-hover);
+  color: #FFFFFF;
+}
+
+.app-contenido {
+  flex: 1;
+  min-width: 0;
+  padding: 28px 32px;
+}
+
+.pagina-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.pagina-header h1, .pagina-header h2 { margin: 0; font-size: 1.4rem; }
+
+/* Compatibilidad con templates existentes que aun usan .layout-app */
+.layout-app { display: flex; min-height: 100vh; }
+.contenido-principal { flex: 1; padding: 28px 32px; }
 
 /* --- Tarjetas --- */
 .card {
   background-color: var(--color-fondo);
   border: 1px solid var(--color-gris-borde);
-  border-radius: 10px;
+  border-radius: var(--radio);
   padding: 20px;
   margin-bottom: 20px;
+  box-shadow: var(--sombra-card);
 }
 
 .card-kpi {
-  background-color: var(--color-azul-suave);
-  border: none;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
+  background-color: var(--color-fondo);
+  border: 1px solid var(--color-gris-borde);
+  border-radius: var(--radio);
+  padding: 18px 20px;
+  box-shadow: var(--sombra-card);
 }
 
 .card-kpi .valor {
-  font-size: 2rem;
+  font-size: 1.9rem;
   font-weight: 700;
-  color: var(--color-azul-acento);
+  color: var(--color-texto-oscuro);
+  letter-spacing: -0.02em;
 }
 
 .card-kpi .etiqueta {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--color-gris-texto);
   margin-top: 4px;
 }
@@ -144,10 +299,11 @@ a:hover { color: var(--color-azul-hover); }
 /* --- Botones --- */
 .btn {
   display: inline-block;
-  padding: 10px 18px;
+  padding: 9px 16px;
   border-radius: 8px;
   border: none;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
   text-align: center;
 }
@@ -156,18 +312,20 @@ a:hover { color: var(--color-azul-hover); }
   background-color: var(--color-azul-acento);
   color: #FFFFFF;
 }
-.btn-primario:hover { background-color: var(--color-azul-hover); color: #fff; }
+.btn-primario:hover { background-color: var(--color-azul-hover); color: #fff; text-decoration: none; }
 
 .btn-secundario {
   background-color: var(--color-gris-claro);
   color: var(--color-texto-oscuro);
 }
+.btn-secundario:hover { background-color: var(--color-gris-borde); text-decoration: none; }
 
 .btn-outline {
   background-color: transparent;
-  border: 1px solid var(--color-azul-acento);
-  color: var(--color-azul-acento);
+  border: 1px solid var(--color-gris-borde);
+  color: var(--color-texto-oscuro);
 }
+.btn-outline:hover { border-color: var(--color-texto-oscuro); text-decoration: none; }
 
 /* --- Formularios --- */
 .form-grupo { margin-bottom: 16px; }
@@ -175,7 +333,8 @@ a:hover { color: var(--color-azul-hover); }
 .form-grupo label {
   display: block;
   margin-bottom: 6px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   color: var(--color-gris-texto);
 }
 
@@ -183,11 +342,13 @@ a:hover { color: var(--color-azul-hover); }
 .form-grupo select,
 .form-grupo textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: 9px 12px;
   border: 1px solid var(--color-gris-borde);
   border-radius: 8px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
+  font-family: inherit;
   background-color: var(--color-fondo);
+  color: var(--color-texto-oscuro);
 }
 
 .form-grupo input:focus,
@@ -204,7 +365,10 @@ table { width: 100%; border-collapse: collapse; }
 th {
   text-align: left;
   padding: 10px 12px;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   color: var(--color-gris-texto);
   border-bottom: 1px solid var(--color-gris-borde);
 }
@@ -212,23 +376,25 @@ th {
 td {
   padding: 12px;
   border-bottom: 1px solid var(--color-gris-claro);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
-tr:hover td { background-color: var(--color-azul-suave); }
+tr:hover td { background-color: var(--color-superficie); }
 
 /* --- Badges de estado --- */
 .badge {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
-.badge-azul { background-color: var(--color-azul-suave); color: var(--color-azul-acento); }
-.badge-verde { background-color: #E4F4EC; color: var(--color-exito); }
-.badge-amarillo { background-color: #FBF1DE; color: var(--color-alerta); }
-.badge-rojo { background-color: #FBEAEA; color: var(--color-error); }
+.badge-azul { background-color: var(--color-gris-claro); color: var(--color-texto-oscuro); }
+.badge-verde { background-color: var(--color-exito-suave); color: var(--color-exito); }
+.badge-amarillo { background-color: var(--color-alerta-suave); color: var(--color-alerta); }
+.badge-rojo { background-color: var(--color-error-suave); color: var(--color-error); }
 .badge-gris { background-color: var(--color-gris-claro); color: var(--color-gris-texto); }
 
 /* --- Mensajes --- */
@@ -239,9 +405,9 @@ tr:hover td { background-color: var(--color-azul-suave); }
   margin-bottom: 8px;
   font-size: 0.9rem;
 }
-.mensaje-success { background-color: #E4F4EC; color: var(--color-exito); }
-.mensaje-error { background-color: #FBEAEA; color: var(--color-error); }
-.mensaje-info { background-color: var(--color-azul-suave); color: var(--color-azul-acento); }
+.mensaje-success { background-color: var(--color-exito-suave); color: var(--color-exito); }
+.mensaje-error { background-color: var(--color-error-suave); color: var(--color-error); }
+.mensaje-info { background-color: var(--color-gris-claro); color: var(--color-texto-oscuro); }
 
 /* --- Odontograma --- */
 .odontograma-arcada {
@@ -266,29 +432,43 @@ tr:hover td { background-color: var(--color-azul-suave); }
   background-color: var(--color-fondo);
 }
 
-.diente:hover { border-color: var(--color-azul-acento); }
+.diente:hover { border-color: var(--color-texto-oscuro); }
 .diente.sano { background-color: #FFFFFF; }
-.diente.caries { background-color: #FBEAEA; border-color: var(--color-error); }
-.diente.obturado { background-color: var(--color-azul-suave); border-color: var(--color-azul-acento); }
-.diente.corona { background-color: #FBF1DE; border-color: var(--color-alerta); }
+.diente.caries { background-color: var(--color-error-suave); border-color: var(--color-error); }
+.diente.obturado { background-color: var(--color-gris-claro); border-color: var(--color-texto-oscuro); }
+.diente.corona { background-color: var(--color-alerta-suave); border-color: var(--color-alerta); }
 .diente.ausente { background-color: var(--color-gris-claro); opacity: 0.5; }
 .diente.endodoncia { background-color: #F0E4F7; border-color: #9B6FC4; }
-.diente.implante { background-color: #E4F4EC; border-color: var(--color-exito); }
+.diente.implante { background-color: var(--color-exito-suave); border-color: var(--color-exito); }
 
 .landing-hero {
   text-align: center;
-  padding: 80px 24px;
-  background: linear-gradient(180deg, var(--color-azul-suave) 0%, var(--color-fondo) 100%);
+  padding: 90px 24px;
+  background: linear-gradient(180deg, #101114 0%, #101114 40%, var(--color-fondo) 100%);
+  color: #FFFFFF;
 }
 
 .landing-hero h1 {
-  font-size: 2.4rem;
-  color: var(--color-texto-oscuro);
-  margin-bottom: 12px;
+  font-size: 2.5rem;
+  color: #FFFFFF;
+  margin-bottom: 14px;
+  letter-spacing: -0.02em;
 }
 
 .landing-hero p {
-  color: var(--color-gris-texto);
+  color: #A9ACB4;
   font-size: 1.1rem;
-  margin-bottom: 28px;
+  margin-bottom: 30px;
 }
+
+.landing-hero .btn-outline {
+  border-color: #3A3C42;
+  color: #FFFFFF;
+}
+.landing-hero .btn-outline:hover { border-color: #FFFFFF; }
+
+.landing-hero .btn-primario {
+  background-color: #FFFFFF;
+  color: #101114;
+}
+.landing-hero .btn-primario:hover { background-color: #D9DADD; color: #101114; }
