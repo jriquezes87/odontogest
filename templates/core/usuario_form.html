@@ -1,0 +1,45 @@
+{% extends "core/_layout_admin.html" %}
+{% block titulo %}Editar usuario{% endblock %}
+
+{% block contenido_admin %}
+<h2>Editar usuario</h2>
+
+<form method="post" class="card" style="max-width:500px;">
+    {% csrf_token %}
+    <div class="form-grupo">
+        <label>Nombre</label>
+        <input type="text" name="first_name" value="{{ usuario.first_name }}">
+    </div>
+    <div class="form-grupo">
+        <label>Apellido</label>
+        <input type="text" name="last_name" value="{{ usuario.last_name }}">
+    </div>
+    <div class="form-grupo">
+        <label>Correo (tambien es su usuario para iniciar sesion)</label>
+        <input type="email" name="correo" value="{{ usuario.email }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>Consultorio</label>
+        <select name="consultorio_id" required>
+            {% for c in consultorios %}
+                <option value="{{ c.id }}" {% if usuario.consultorio_id == c.id %}selected{% endif %}>{{ c.nombre_practica }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-grupo">
+        <label>Rol</label>
+        <select name="rol">
+            <option value="admin_consultorio" {% if usuario.rol == 'admin_consultorio' %}selected{% endif %}>Administrador de Consultorio</option>
+            <option value="doctor" {% if usuario.rol == 'doctor' %}selected{% endif %}>Doctor / Odontologo</option>
+        </select>
+    </div>
+    <div class="form-grupo">
+        <label><input type="checkbox" name="is_active" {% if usuario.is_active %}checked{% endif %}> Cuenta activa (puede iniciar sesion)</label>
+    </div>
+    <div class="form-grupo">
+        <label><input type="checkbox" name="activo_en_consultorio" {% if usuario.activo_en_consultorio %}checked{% endif %}> Activo dentro de su consultorio</label>
+    </div>
+    <button type="submit" class="btn btn-primario">Guardar</button>
+    <a href="{% url 'core:usuarios' %}" class="btn btn-secundario">Cancelar</a>
+</form>
+{% endblock %}

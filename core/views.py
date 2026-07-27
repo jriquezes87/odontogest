@@ -4,7 +4,10 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Sum, ProtectedError
 
+from django_tenants.utils import schema_context
+
 from .models import Consultorio, Suscripcion, Pago, Cupon, Plan
+from cuentas.models import Usuario
 
 
 def es_super_admin(user):
@@ -145,3 +148,58 @@ def eliminar_plan(request, plan_id):
             )
         return redirect('core:planes')
     return render(request, 'core/plan_confirmar_eliminar.html', {'plan': plan})
+
+
+# ---------------------------------------------------------------------------
+# Usuarios (dueños de consultorio y doctores; el super_admin se gestiona
+# desde /admin/ para no arriesgar que alguien se quite permisos por error)
+# ---------------------------------------------------------------------------
+@login_required
+@user_passes_test(es_super_admin)
+def lista_usuarios(request):
+    usuarios = Usuario.objects.exclude(rol='super_admin').select_related('consultorio').order_by(
+        'consultorio__nombre_practica', 'username'
+    )
+    return render(request, 'core/usuarios.html', {'usuarios': usuarios})
+
+
+@login_required
+@user_passes_test(es_super_admin)
+def editar_usuario(request, usuario_id):
+    usuario = get_object_or_404(Usuario, id=usuario_id, rol__in=['admin_consultorio', 'doctor'])
+    consultorios = Consultorio.objects.exclude(schema_name='public').order_by('nombre_practica')
+
+    if request.method == 'POST':
+        correo = request.POST.get('correo', '').strip()
+        usuario.first_name = request.POST.get('first_name', '').strip()
+        usuario.last_name = request.POST.get('last_name', '').strip()
+        usuario.username = correo
+        usuario.email = correo
+        usuario.rol = request.POST.get('rol', usuario.rol)
+        usuario.consultorio_id = request.POST.get('consultorio_id') or None
+        usuario.is_active = request.POST.get('is_active') == 'on'
+        usuario.activo_en_consultorio = request.POST.get('activo_en_consultorio') == 'on'
+        usuario.save()
+        messages.success(request, f'Usuario {usuario.username} actualizado.')
+        return redirect('core:usuarios')
+
+    return render(request, 'core/usuario_form.html', {'usuario': usuario, 'consultorios': consultorios})
+
+
+@login_required
+@user_passes_test(es_super_admin)
+def eliminar_usuario(request, usuario_id):
+    usuario = get_object_or_404(Usuario, id=usuario_id, rol__in=['admin_consultorio', 'doctor'])
+    if request.method == 'POST':
+        nombre = usuario.get_full_name() or usuario.username
+        # El borrado revisa las citas/historias del usuario, que viven en
+        # el schema de su consultorio (no en el publico donde corre el
+        # panel), asi que hay que pararse ahi antes de borrar.
+        if usuario.consultorio:
+            with schema_context(usuario.consultorio.schema_name):
+                usuario.delete()
+        else:
+            usuario.delete()
+        messages.success(request, f'Usuario "{nombre}" eliminado.')
+        return redirect('core:usuarios')
+    return render(request, 'core/usuario_confirmar_eliminar.html', {'usuario': usuario})

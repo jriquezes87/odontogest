@@ -1,0 +1,41 @@
+{% extends "core/_layout_admin.html" %}
+{% block titulo %}Usuarios{% endblock %}
+
+{% block contenido_admin %}
+<h2>Usuarios de los consultorios</h2>
+<p style="color:var(--color-gris-texto);">
+    Se crean automaticamente cuando alguien se registra desde
+    <a href="{% url 'landing:registro' %}">/registro/</a>, o cuando un
+    administrador de consultorio agrega un doctor desde su Equipo. El
+    super-admin se gestiona desde <a href="/admin/cuentas/usuario/">/admin/</a>.
+</p>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr><th>Consultorio</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.consultorio.nombre_practica|default:"-" }}</td>
+                <td>{{ usuario.get_full_name|default:usuario.username }}</td>
+                <td>{{ usuario.email }}</td>
+                <td>{{ usuario.get_rol_display }}</td>
+                <td>
+                    {% if usuario.is_active %}<span class="badge badge-verde">Activo</span>
+                    {% else %}<span class="badge badge-gris">Inactivo</span>{% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'core:editar_usuario' usuario.id %}">Editar</a>
+                    &middot;
+                    <a href="{% url 'core:eliminar_usuario' usuario.id %}">Eliminar</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6">Aun no hay usuarios de consultorios.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

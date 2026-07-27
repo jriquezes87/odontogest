@@ -14,4 +14,7 @@ urlpatterns = [
     path('planes/nuevo/', views.crear_plan, name='crear_plan'),
     path('planes/<int:plan_id>/editar/', views.editar_plan, name='editar_plan'),
     path('planes/<int:plan_id>/eliminar/', views.eliminar_plan, name='eliminar_plan'),
+    path('usuarios/', views.lista_usuarios, name='usuarios'),
+    path('usuarios/<int:usuario_id>/editar/', views.editar_usuario, name='editar_usuario'),
+    path('usuarios/<int:usuario_id>/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),
 ]
