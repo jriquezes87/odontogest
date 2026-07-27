@@ -60,4 +60,48 @@
         <p style="color:var(--color-gris-texto);">No hay citas pendientes por confirmar.</p>
     {% endif %}
 </div>
+
+<div class="card">
+    <h3>Cotizaciones aprobadas sin cita ({{ citas_por_agendar|length }})</h3>
+    {% if citas_por_agendar %}
+    <table>
+        <thead><tr><th>Cotizacion</th><th>Paciente</th><th>Total</th><th></th></tr></thead>
+        <tbody>
+        {% for cot in citas_por_agendar %}
+            <tr>
+                <td>{{ cot.numero }}</td>
+                <td>{{ cot.paciente.nombre_completo }}</td>
+                <td>${{ cot.total }}</td>
+                <td><a href="/app/citas/nueva/?paciente_id={{ cot.paciente.id }}&cotizacion_id={{ cot.id }}" class="btn btn-outline">Agendar cita</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:var(--color-gris-texto);">No hay cotizaciones aprobadas esperando cita.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Cobros pendientes ({{ cobros_pendientes|length }})</h3>
+    {% if cobros_pendientes %}
+    <table>
+        <thead><tr><th>Cotizacion</th><th>Paciente</th><th>Total</th><th>Pagado</th><th>Saldo</th><th></th></tr></thead>
+        <tbody>
+        {% for cot in cobros_pendientes %}
+            <tr>
+                <td>{{ cot.numero }}</td>
+                <td>{{ cot.paciente.nombre_completo }}</td>
+                <td>${{ cot.total }}</td>
+                <td>${{ cot.total_pagado }}</td>
+                <td><strong style="color:var(--color-error);">${{ cot.saldo_pendiente }}</strong></td>
+                <td><a href="{% url 'clientes:registrar_pago' cot.paciente.id %}" class="btn btn-outline">Registrar pago</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:var(--color-gris-texto);">No hay cobros pendientes.</p>
+    {% endif %}
+</div>
 {% endblock %}

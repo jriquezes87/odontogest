@@ -15,10 +15,17 @@
 
 <div class="card">
     <table>
-        <thead><tr><th>Cedula</th><th>Nombre</th><th>Telefono</th><th>Doctor</th><th></th></tr></thead>
+        <thead><tr><th>Pago</th><th>Cedula</th><th>Nombre</th><th>Telefono</th><th>Doctor</th><th></th></tr></thead>
         <tbody>
         {% for p in pacientes %}
             <tr>
+                <td>
+                    {% if p.tiene_saldo_pendiente %}
+                        <span class="badge badge-rojo" title="Tiene cotizaciones aprobadas con saldo pendiente">● Pendiente</span>
+                    {% else %}
+                        <span class="badge badge-verde" title="Sin pagos pendientes">● Al dia</span>
+                    {% endif %}
+                </td>
                 <td>{{ p.cedula }}</td>
                 <td>{{ p.nombre_completo }}</td>
                 <td>{{ p.telefono }}</td>
@@ -26,7 +33,7 @@
                 <td><a href="{% url 'clientes:detalle_paciente' p.id %}" class="btn btn-outline">Ver ficha</a></td>
             </tr>
         {% empty %}
-            <tr><td colspan="5">No se encontraron pacientes.</td></tr>
+            <tr><td colspan="6">No se encontraron pacientes.</td></tr>
         {% endfor %}
         </tbody>
     </table>

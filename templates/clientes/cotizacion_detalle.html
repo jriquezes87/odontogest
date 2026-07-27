@@ -10,6 +10,13 @@
             <a href="{% url 'clientes:enviar_cotizacion' cotizacion.id %}" class="btn btn-primario">Enviar cotizacion</a>
         {% elif cotizacion.estado == 'enviada' %}
             <a href="{% url 'clientes:aprobar_cotizacion' cotizacion.id %}" class="btn btn-primario">Aprobar cotizacion</a>
+        {% elif cotizacion.estado == 'aprobada' %}
+            {% if not cotizacion.cita_generada %}
+                <a href="/app/citas/nueva/?paciente_id={{ cotizacion.paciente.id }}&cotizacion_id={{ cotizacion.id }}" class="btn btn-outline">+ Crear cita</a>
+            {% endif %}
+            {% if cotizacion.saldo_pendiente > 0 %}
+                <a href="{% url 'clientes:registrar_pago' cotizacion.paciente.id %}" class="btn btn-primario">+ Registrar pago</a>
+            {% endif %}
         {% endif %}
     </div>
 </div>
@@ -40,6 +47,17 @@
         </tbody>
     </table>
     <h3 style="text-align:right;">Total: ${{ cotizacion.total }}</h3>
+    {% if cotizacion.estado == 'aprobada' %}
+        <p style="text-align:right; color:var(--color-gris-texto);">
+            Pagado: ${{ cotizacion.total_pagado }} &nbsp;|&nbsp;
+            Saldo:
+            {% if cotizacion.saldo_pendiente > 0 %}
+                <strong style="color:var(--color-error);">${{ cotizacion.saldo_pendiente }}</strong>
+            {% else %}
+                <strong style="color:var(--color-exito);">$0 (pagado)</strong>
+            {% endif %}
+        </p>
+    {% endif %}
 
     {% if cotizacion.notas %}
         <p><strong>Notas:</strong> {{ cotizacion.notas }}</p>
