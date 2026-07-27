@@ -4,7 +4,7 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
 
-from core.models import Consultorio, Dominio, Plan, Suscripcion
+from core.models import Consultorio, Plan, Suscripcion
 from cuentas.models import Usuario
 
 
@@ -20,9 +20,9 @@ def precios(request):
 def registro(request):
     """
     Registro publico de un nuevo consultorio.
-    Crea: el Consultorio (tenant, con su propio schema),
-    su dominio de acceso, la Suscripcion en periodo de prueba,
-    y el primer Usuario (admin_consultorio) dentro de ese schema.
+    Crea: el Consultorio (tenant, con su propio schema aislado),
+    la Suscripcion en periodo de prueba, y el primer Usuario
+    (admin_consultorio), vinculado a ese consultorio.
     """
     planes = Plan.objects.filter(activo=True)
 
@@ -38,8 +38,12 @@ def registro(request):
             messages.error(request, 'Por favor completa todos los campos.')
             return render(request, 'landing/registro.html', {'planes': planes})
 
-        if Dominio.objects.filter(domain__istartswith=f"{subdominio}.").exists():
-            messages.error(request, 'Ese subdominio ya esta en uso, elige otro.')
+        if Consultorio.objects.filter(schema_name=subdominio).exists():
+            messages.error(request, 'Ese identificador ya esta en uso, elige otro.')
+            return render(request, 'landing/registro.html', {'planes': planes})
+
+        if Usuario.objects.filter(username=correo).exists():
+            messages.error(request, 'Ya existe una cuenta con ese correo.')
             return render(request, 'landing/registro.html', {'planes': planes})
 
         try:
@@ -52,12 +56,6 @@ def registro(request):
                 )
                 consultorio.save()
 
-                Dominio.objects.create(
-                    domain=f"{subdominio}.odontogest.com",  # ajustar al dominio real
-                    tenant=consultorio,
-                    is_primary=True,
-                )
-
                 Suscripcion.objects.create(
                     consultorio=consultorio,
                     plan=plan,
@@ -65,16 +63,14 @@ def registro(request):
                     fecha_vencimiento=timezone.now().date() + timedelta(days=14),
                 )
 
-                # El primer usuario se crea DENTRO del schema del tenant
-                from django_tenants.utils import schema_context
-                with schema_context(consultorio.schema_name):
-                    Usuario.objects.create_user(
-                        username=correo,
-                        email=correo,
-                        password=password,
-                        first_name=nombre_admin,
-                        rol='admin_consultorio',
-                    )
+                Usuario.objects.create_user(
+                    username=correo,
+                    email=correo,
+                    password=password,
+                    first_name=nombre_admin,
+                    rol='admin_consultorio',
+                    consultorio=consultorio,
+                )
 
             messages.success(
                 request,

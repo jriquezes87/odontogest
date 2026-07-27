@@ -119,6 +119,14 @@ python manage.py runserver
   obtiene su propio schema de PostgreSQL automaticamente. Sus datos
   (pacientes, historias, citas, etc.) nunca se mezclan con los de otro
   consultorio.
+- **Resolucion de tenant sin dominio propio**: mientras no haya un
+  dominio propio con DNS wildcard, todos los consultorios se sirven
+  desde la misma URL (`odontogest-web.onrender.com`). El schema activo
+  no se elige por subdominio sino por el usuario logueado
+  (`Usuario.consultorio`, ver `cuentas/middleware.py`). El super-admin no
+  tiene consultorio asignado y siempre queda en el schema publico. Si en
+  el futuro compras un dominio con wildcard, se puede volver al enfoque
+  de subdominio por tenant sin perder el aislamiento por schema.
 - **WhatsApp**: el envio de recordatorios automaticos no esta incluido
   en este MVP (requiere decidir entre API oficial de WhatsApp Business
   o una libreria no oficial). El campo `recordatorio_whatsapp_horas_antes`
