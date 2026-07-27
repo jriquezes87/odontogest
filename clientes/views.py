@@ -493,3 +493,54 @@ def crear_doctor(request):
         return redirect('clientes:lista_equipo')
 
     return render(request, 'clientes/doctor_form.html')
+
+
+# ---------------------------------------------------------------------------
+# Mi dia
+# ---------------------------------------------------------------------------
+@login_required
+def mi_dia(request):
+    hoy = timezone.now().date()
+
+    citas_hoy_qs = Cita.objects.filter(fecha_hora__date=hoy).exclude(estado='cancelada').select_related(
+        'paciente', 'doctor'
+    ).order_by('fecha_hora')
+    citas_pendientes_qs = Cita.objects.filter(estado='pendiente').exclude(fecha_hora__date=hoy).select_related(
+        'paciente', 'doctor'
+    ).order_by('fecha_hora')
+
+    if request.user.es_doctor:
+        citas_hoy_qs = citas_hoy_qs.filter(doctor=request.user)
+        citas_pendientes_qs = citas_pendientes_qs.filter(doctor=request.user)
+
+    return render(request, 'clientes/mi_dia.html', {
+        'citas_hoy': citas_hoy_qs,
+        'citas_pendientes': citas_pendientes_qs,
+        'hoy': hoy,
+    })
+
+
+# ---------------------------------------------------------------------------
+# Configuracion del consultorio
+# ---------------------------------------------------------------------------
+@login_required
+def configuracion(request):
+    if not request.user.es_admin_consultorio:
+        messages.error(request, 'Solo el administrador del consultorio puede editar la configuracion.')
+        return redirect('clientes:dashboard')
+
+    consultorio = request.user.consultorio
+
+    if request.method == 'POST':
+        consultorio.nombre_practica = request.POST.get('nombre_practica', consultorio.nombre_practica).strip()
+        consultorio.ruc_o_rif = request.POST.get('ruc_o_rif', '').strip()
+        consultorio.telefono = request.POST.get('telefono', '').strip()
+        consultorio.direccion = request.POST.get('direccion', '').strip()
+        consultorio.color_acento = request.POST.get('color_acento') or consultorio.color_acento
+        if request.FILES.get('logo'):
+            consultorio.logo = request.FILES['logo']
+        consultorio.save()
+        messages.success(request, 'Configuracion del consultorio actualizada.')
+        return redirect('clientes:configuracion')
+
+    return render(request, 'clientes/configuracion.html', {'consultorio': consultorio})
