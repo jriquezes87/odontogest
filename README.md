@@ -102,6 +102,15 @@ python manage.py runserver
 
 ## Notas importantes
 
+- **Tenant publico**: django-tenants necesita un registro de dominio en la
+  base de datos que coincida exactamente con la URL que usas para entrar
+  (ej. `odontogest-web.onrender.com`); si no existe, cualquier peticion
+  devuelve un 404 "Not Found" aunque el deploy haya sido exitoso. El
+  `preDeployCommand` de `render.yaml` ejecuta automaticamente
+  `python manage.py bootstrap_public_tenant`, que crea ese tenant y
+  dominio publico (usa la variable `RENDER_EXTERNAL_HOSTNAME` que Render
+  inyecta solo). Si alguna vez ves un 404 en la raiz del sitio, corre ese
+  comando manualmente desde el Shell del Web Service en Render.
 - **Fotos de pacientes**: por defecto se guardan en el servidor. Como
   Render usa almacenamiento efimero en el plan basico, para produccion
   real se recomienda configurar Cloudflare R2 o AWS S3 (variables
