@@ -1,0 +1,14 @@
+{% extends "core/_layout_admin.html" %}
+{% block titulo %}Eliminar plan{% endblock %}
+
+{% block contenido_admin %}
+<h2>Eliminar plan</h2>
+<div class="card" style="max-width:500px;">
+    <p>¿Seguro que quieres eliminar el plan <strong>{{ plan.nombre }}</strong>? Esta accion no se puede deshacer.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secundario">Si, eliminar</button>
+        <a href="{% url 'core:planes' %}" class="btn btn-primario">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

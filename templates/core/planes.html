@@ -1,0 +1,41 @@
+{% extends "core/_layout_admin.html" %}
+{% block titulo %}Planes{% endblock %}
+
+{% block contenido_admin %}
+<div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2>Planes de suscripcion</h2>
+    <a href="{% url 'core:crear_plan' %}" class="btn btn-primario">+ Nuevo plan</a>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th><th>Precio/mes</th><th>Pacientes</th><th>Doctores</th><th>Storage</th><th>Estado</th><th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for plan in planes %}
+            <tr>
+                <td>{{ plan.nombre }}</td>
+                <td>${{ plan.precio_mensual }}</td>
+                <td>{{ plan.limite_pacientes }}</td>
+                <td>{{ plan.limite_doctores }}</td>
+                <td>{{ plan.limite_storage_gb }} GB</td>
+                <td>
+                    {% if plan.activo %}<span class="badge badge-verde">Activo</span>
+                    {% else %}<span class="badge badge-gris">Inactivo</span>{% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'core:editar_plan' plan.id %}">Editar</a>
+                    &middot;
+                    <a href="{% url 'core:eliminar_plan' plan.id %}">Eliminar</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7">Aun no hay planes creados.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
