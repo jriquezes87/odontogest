@@ -6,7 +6,7 @@
     <h1>Crea tu cuenta</h1>
     <p style="color:var(--color-gris-texto);">14 dias de prueba gratis, sin tarjeta de credito.</p>
 
-    <form method="post" class="card">
+    <form method="post" class="card" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
         {% csrf_token %}
         <div class="form-grupo">
             <label>Nombre de tu consultorio o practica</label>
