@@ -1,0 +1,41 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Configuracion - {{ MARCA_APP_NOMBRE }}{% endblock %}
+
+{% block contenido_app %}
+<h2>Configuracion del consultorio</h2>
+<p style="color:var(--color-gris-texto);">Tu logo y color se muestran en el sidebar de la app y en las cotizaciones en PDF.</p>
+
+<form method="post" enctype="multipart/form-data" class="card" style="max-width:500px;">
+    {% csrf_token %}
+    <div class="form-grupo">
+        <label>Logo</label>
+        {% if consultorio.logo %}
+            <div style="margin-bottom:10px;">
+                <img src="{{ consultorio.logo.url }}" alt="Logo actual" style="height:56px; border-radius:8px; border:1px solid var(--color-gris-borde); padding:6px;">
+            </div>
+        {% endif %}
+        <input type="file" name="logo" accept="image/*">
+    </div>
+    <div class="form-grupo">
+        <label>Nombre del consultorio</label>
+        <input type="text" name="nombre_practica" value="{{ consultorio.nombre_practica }}" required>
+    </div>
+    <div class="form-grupo">
+        <label>RIF / RUC</label>
+        <input type="text" name="ruc_o_rif" value="{{ consultorio.ruc_o_rif }}">
+    </div>
+    <div class="form-grupo">
+        <label>Telefono</label>
+        <input type="text" name="telefono" value="{{ consultorio.telefono }}">
+    </div>
+    <div class="form-grupo">
+        <label>Direccion</label>
+        <input type="text" name="direccion" value="{{ consultorio.direccion }}">
+    </div>
+    <div class="form-grupo">
+        <label>Color de acento</label>
+        <input type="color" name="color_acento" value="{{ consultorio.color_acento }}" style="height:42px; padding:4px; width:100px;">
+    </div>
+    <button type="submit" class="btn btn-primario">Guardar</button>
+</form>
+{% endblock %}

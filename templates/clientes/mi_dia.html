@@ -1,0 +1,59 @@
+{% extends "clientes/_layout_app.html" %}
+{% block titulo %}Mi dia - {{ MARCA_APP_NOMBRE }}{% endblock %}
+
+{% block contenido_app %}
+<div class="pagina-header">
+    <h2>Mi dia — {{ hoy|date:"l j \d\e F" }}</h2>
+</div>
+
+<div class="card">
+    <h3>Citas de hoy ({{ citas_hoy|length }})</h3>
+    {% if citas_hoy %}
+    <table>
+        <thead><tr><th>Hora</th><th>Paciente</th><th>Telefono</th><th>Doctor</th><th>Motivo</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+        {% for cita in citas_hoy %}
+            <tr>
+                <td>{{ cita.fecha_hora|date:"H:i" }}</td>
+                <td>{{ cita.paciente.nombre_completo }}</td>
+                <td>{{ cita.paciente.telefono_whatsapp|default:cita.paciente.telefono|default:"-" }}</td>
+                <td>{{ cita.doctor.get_full_name }}</td>
+                <td>{{ cita.motivo|default:"-" }}</td>
+                <td>
+                    {% if cita.estado == 'confirmada' %}<span class="badge badge-verde">{{ cita.get_estado_display }}</span>
+                    {% elif cita.estado == 'completada' %}<span class="badge badge-azul">{{ cita.get_estado_display }}</span>
+                    {% elif cita.estado == 'no_asistio' %}<span class="badge badge-rojo">{{ cita.get_estado_display }}</span>
+                    {% else %}<span class="badge badge-amarillo">{{ cita.get_estado_display }}</span>{% endif %}
+                </td>
+                <td><a href="{% url 'clientes:detalle_paciente' cita.paciente.id %}">Ver ficha</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:var(--color-gris-texto);">No tienes citas programadas para hoy.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Pendientes por confirmar ({{ citas_pendientes|length }})</h3>
+    {% if citas_pendientes %}
+    <table>
+        <thead><tr><th>Fecha</th><th>Hora</th><th>Paciente</th><th>Doctor</th><th></th></tr></thead>
+        <tbody>
+        {% for cita in citas_pendientes %}
+            <tr>
+                <td>{{ cita.fecha_hora|date:"d/m/Y" }}</td>
+                <td>{{ cita.fecha_hora|date:"H:i" }}</td>
+                <td>{{ cita.paciente.nombre_completo }}</td>
+                <td>{{ cita.doctor.get_full_name }}</td>
+                <td><a href="{% url 'clientes:editar_cita' cita.id %}">Confirmar / editar</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p style="color:var(--color-gris-texto);">No hay citas pendientes por confirmar.</p>
+    {% endif %}
+</div>
+{% endblock %}

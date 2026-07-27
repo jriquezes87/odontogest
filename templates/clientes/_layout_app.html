@@ -2,6 +2,7 @@
 
 {% block sidebar_nav %}
 <div class="nav-grupo-titulo">Principal</div>
+<a href="{% url 'clientes:mi_dia' %}" class="{% if request.resolver_match.url_name == 'mi_dia' %}activo{% endif %}">Mi dia</a>
 <a href="{% url 'clientes:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}activo{% endif %}">Dashboard</a>
 <a href="{% url 'clientes:calendario' %}" class="{% if request.resolver_match.url_name == 'calendario' %}activo{% endif %}">Calendario</a>
 
@@ -13,4 +14,7 @@
 <div class="nav-grupo-titulo">Consultorio</div>
 <a href="{% url 'clientes:lista_procedimientos' %}" class="{% if 'procedimiento' in request.resolver_match.url_name %}activo{% endif %}">Procedimientos</a>
 <a href="{% url 'clientes:lista_equipo' %}" class="{% if 'equipo' in request.resolver_match.url_name or 'doctor' in request.resolver_match.url_name %}activo{% endif %}">Mi equipo</a>
+{% if user.es_admin_consultorio %}
+<a href="{% url 'clientes:configuracion' %}" class="{% if request.resolver_match.url_name == 'configuracion' %}activo{% endif %}">Configuracion</a>
+{% endif %}
 {% endblock %}
